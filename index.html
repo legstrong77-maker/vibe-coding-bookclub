@@ -1,0 +1,3260 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vibe Coding · 一場給超級新手的氛圍編程入門 — Leg</title>
+<meta name="description" content="AI 讀書會分享 — 從零開始的 Vibe Coding 之路。Antigravity、Claude Code、Codex，與 24 件作品的開發過程。" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=Noto+Serif+TC:wght@300;500;700;900&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0e0e10;
+    --ink-2: #15151a;
+    --ink-3: #1c1c22;
+    --line: #2a2a32;
+    --line-soft: #1f1f26;
+    --bone: #f4ece0;
+    --bone-dim: #c9c2b6;
+    --mute: #8a8378;
+    --mute-2: #5e574d;
+    --persimmon: #e8623d;        /* 柿 */
+    --persimmon-soft: #f08a6b;
+    --jade: #88a87a;             /* 青苔 */
+    --jade-deep: #4d6c4a;
+    --champagne: #d9b384;
+    --rose: #c5817d;
+    --paper: #f4ece0;
+
+    /* tool brand cues for comparison table */
+    --google: #4285f4;
+    --anthropic: #c9956a;
+    --openai: #10a37f;
+
+    --max: 1280px;
+    --gutter: clamp(20px, 4vw, 64px);
+
+    --serif: "Fraunces", "Noto Serif TC", "Songti TC", serif;
+    --serif-italic: "Instrument Serif", "Noto Serif TC", serif;
+    --sans: "Noto Sans TC", -apple-system, "Segoe UI", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  body {
+    background: var(--ink);
+    color: var(--bone);
+    font-family: var(--sans);
+    font-weight: 400;
+    line-height: 1.6;
+    letter-spacing: 0.01em;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 200;
+    opacity: 0.06;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.5'/></svg>");
+  }
+  body::after {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 199;
+    background:
+      radial-gradient(1200px 800px at 80% -10%, rgba(232, 98, 61, 0.08), transparent 60%),
+      radial-gradient(900px 700px at -10% 100%, rgba(136, 168, 122, 0.06), transparent 60%);
+  }
+
+  ::selection { background: var(--persimmon); color: var(--ink); }
+  a { color: inherit; text-decoration: none; }
+
+  /* ─────────── topbar ─────────── */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px var(--gutter);
+    backdrop-filter: blur(14px);
+    background: rgba(14, 14, 16, 0.65);
+    border-bottom: 1px solid var(--line-soft);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+  }
+  .topbar .mark { display: flex; align-items: center; gap: 10px; color: var(--bone); }
+  .topbar .mark .seal {
+    width: 22px; height: 22px;
+    background: var(--persimmon);
+    color: var(--ink);
+    display: grid; place-items: center;
+    font-family: var(--serif);
+    font-weight: 900; font-size: 13px;
+    transform: rotate(-6deg);
+  }
+  .topbar nav { display: flex; gap: 22px; }
+  .topbar nav a { transition: color .25s; }
+  .topbar nav a:hover { color: var(--persimmon); }
+  .topbar .meta { color: var(--mute); }
+  @media (max-width: 1100px) { .topbar nav { display: none; } }
+
+  /* ─────────── hero ─────────── */
+  .hero {
+    min-height: 100vh;
+    padding: 140px var(--gutter) 80px;
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+    align-content: center;
+  }
+  .hero .issue-line {
+    display: flex; align-items: center; gap: 18px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    color: var(--mute);
+    text-transform: uppercase;
+  }
+  .hero .issue-line .rule {
+    flex: 1; height: 1px;
+    background: linear-gradient(to right, var(--line) 0%, transparent 100%);
+    max-width: 240px;
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(54px, 11vw, 168px);
+    line-height: 0.92;
+    letter-spacing: -0.04em;
+    color: var(--bone);
+  }
+  .hero h1 em {
+    font-family: var(--serif-italic);
+    font-style: italic; font-weight: 400;
+    color: var(--persimmon);
+    letter-spacing: -0.02em;
+  }
+  .hero h1 .small {
+    display: block;
+    font-family: "Noto Serif TC", serif;
+    font-weight: 300;
+    font-size: 0.36em;
+    color: var(--bone-dim);
+    margin-top: 18px;
+    letter-spacing: 0.05em;
+  }
+  .hero .deck {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    margin-top: 40px;
+    align-items: end;
+  }
+  .hero .deck .lead {
+    font-family: "Noto Serif TC", serif;
+    font-weight: 300;
+    font-size: clamp(17px, 1.4vw, 21px);
+    line-height: 1.7;
+    color: var(--bone-dim);
+    max-width: 48ch;
+  }
+  .hero .deck .lead em {
+    font-family: var(--serif-italic);
+    color: var(--bone);
+    font-style: italic;
+  }
+  .hero .deck .lead strong { color: var(--bone); font-weight: 500; }
+  .hero .colophon {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--mute);
+    line-height: 2;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    border-left: 1px solid var(--line);
+    padding-left: 24px;
+    align-self: end;
+  }
+  .hero .colophon span { color: var(--bone); }
+  @media (max-width: 820px) {
+    .hero .deck { grid-template-columns: 1fr; gap: 30px; }
+    .hero .colophon { border-left: 0; border-top: 1px solid var(--line); padding: 18px 0 0; }
+  }
+
+  .hero-ornament {
+    position: absolute;
+    right: var(--gutter);
+    top: 38vh;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    border: 1px dashed rgba(232, 98, 61, 0.4);
+    display: grid; place-items: center;
+    animation: spin 40s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .hero-ornament svg { width: 100%; height: 100%; }
+  .hero-ornament svg text {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.4em;
+    fill: var(--persimmon);
+    text-transform: uppercase;
+  }
+  .hero-ornament .core {
+    position: absolute; inset: 0;
+    display: grid; place-items: center;
+    animation: spin 40s linear infinite reverse;
+  }
+  .hero-ornament .core .glyph {
+    font-family: var(--serif-italic);
+    font-style: italic;
+    font-size: 60px;
+    color: var(--persimmon);
+  }
+  @media (max-width: 1200px) { .hero-ornament { display: none; } }
+
+  /* ─────────── chapter system ─────────── */
+  section.chapter {
+    padding: 120px var(--gutter);
+    border-top: 1px solid var(--line-soft);
+    position: relative;
+  }
+  .chapter-head {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: end;
+    gap: 40px;
+    margin-bottom: 80px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--line);
+  }
+  .chapter-num {
+    font-family: var(--serif-italic);
+    font-style: italic;
+    font-size: clamp(80px, 12vw, 180px);
+    line-height: 0.85;
+    color: var(--persimmon);
+    letter-spacing: -0.04em;
+  }
+  .chapter-title {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(30px, 4.5vw, 60px);
+    line-height: 1;
+    color: var(--bone);
+    letter-spacing: -0.02em;
+    padding-bottom: 14px;
+  }
+  .chapter-title .zh {
+    font-family: "Noto Serif TC", serif;
+    font-weight: 300;
+    display: block;
+    font-size: 0.55em;
+    color: var(--bone-dim);
+    margin-top: 12px;
+    letter-spacing: 0.04em;
+  }
+  .chapter-marker {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--mute);
+    padding-bottom: 22px;
+    text-align: right;
+    line-height: 1.8;
+  }
+  .chapter-marker span { color: var(--persimmon); }
+  @media (max-width: 720px) {
+    .chapter-head { grid-template-columns: 1fr; gap: 8px; }
+    .chapter-marker { text-align: left; }
+  }
+
+  /* ─────────── ch01: vibe coding ─────────── */
+  .vibe-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .pull-quote {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(24px, 2.6vw, 36px);
+    line-height: 1.35;
+    color: var(--bone);
+    letter-spacing: -0.01em;
+  }
+  .pull-quote em {
+    font-family: var(--serif-italic);
+    font-style: italic;
+    color: var(--persimmon);
+    font-weight: 400;
+  }
+  .pull-quote::before {
+    content: "“";
+    font-family: var(--serif-italic);
+    font-style: italic;
+    font-size: 1.2em;
+    color: var(--persimmon);
+    line-height: 0;
+    margin-right: 4px;
+    vertical-align: -0.2em;
+  }
+  .pull-quote::after {
+    content: "”";
+    font-family: var(--serif-italic);
+    font-style: italic;
+    color: var(--persimmon);
+  }
+  .quote-attr {
+    margin-top: 20px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--mute);
+  }
+  .quote-attr span { color: var(--bone); }
+  .vibe-body {
+    font-family: "Noto Serif TC", serif;
+    font-size: 17px;
+    line-height: 1.85;
+    color: var(--bone-dim);
+    font-weight: 300;
+  }
+  .vibe-body p + p { margin-top: 18px; }
+  .vibe-body strong {
+    color: var(--bone);
+    font-weight: 500;
+  }
+  .vibe-body .hl {
+    background: linear-gradient(180deg, transparent 60%, rgba(232, 98, 61, 0.25) 60%);
+    color: var(--bone);
+  }
+  @media (max-width: 900px) {
+    .vibe-grid { grid-template-columns: 1fr; gap: 40px; }
+  }
+
+  .fact-strip {
+    margin-top: 80px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .fact { padding: 32px 24px; border-right: 1px solid var(--line); }
+  .fact:last-child { border-right: 0; }
+  .fact .num {
+    font-family: var(--serif-italic);
+    font-style: italic;
+    font-size: 56px;
+    line-height: 1;
+    color: var(--persimmon);
+    margin-bottom: 6px;
+  }
+  .fact .lbl {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--mute);
+  }
+  .fact .desc {
+    margin-top: 12px;
+    font-family: "Noto Serif TC", serif;
+    font-weight: 300;
+    font-size: 14px;
+    color: var(--bone-dim);
+    line-height: 1.5;
+  }
+  @media (max-width: 820px) {
+    .fact-strip { grid-template-columns: 1fr 1fr; }
+    .fact:nth-child(2) { border-right: 0; }
+    .fact:nth-child(1), .fact:nth-child(2) { border-bottom: 1px solid var(--line); }
+  }
+
+  /* ─────────── ch02: why ─────────── */
+  .why-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 28px;
+  }
+  .why-card {
+    grid-column: span 4;
+    padding: 36px 32px;
+    border: 1px solid var(--line);
+    background: var(--ink-2);
+    position: relative;
+    transition: transform .4s cubic-bezier(.2,.7,.2,1), border-color .3s, background .3s;
+  }
+  .why-card::before {
+    content: attr(data-num);
+    position: absolute;
+    top: 18px; right: 22px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--mute);
+  }
+  .why-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--persimmon);
+    background: var(--ink-3);
+  }
+  .why-card .icon {
+    font-family: var(--serif-italic);
+    font-style: italic;
+    font-size: 56px;
+    line-height: 1;
+    color: var(--persimmon);
+    margin-bottom: 18px;
+  }
+  .why-card h3 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 24px;
+    color: var(--bone);
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
+  }
+  .why-card h3 .zh {
+    display: block;
+    font-family: "Noto Serif TC", serif;
+    font-size: 17px;
+    color: var(--bone-dim);
+    margin-top: 4px;
+  }
+  .why-card p {
+    font-family: "Noto Sans TC", sans-serif;
+    font-size: 14.5px;
+    color: var(--bone-dim);
+    line-height: 1.7;
+  }
+  .why-card.feat { grid-column: span 12; padding: 56px; background: linear-gradient(135deg, rgba(232,98,61,0.08), transparent 70%); border-color: rgba(232,98,61,0.4); }
+  .why-card.feat .icon { font-size: 80px; }
+  .why-card.feat h3 { font-size: 36px; }
+  @media (max-width: 980px) {
+    .why-card { grid-column: span 6; }
+    .why-card.feat { grid-column: span 12; padding: 36px; }
+  }
+  @media (max-width: 600px) {
+    .why-card { grid-column: span 12; }
+  }
+
+  /* ─────────── ch03: comparison table ─────────── */
+  .tools-intro {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0;
+    margin-bottom: 48px;
+    border: 1px solid var(--line);
+  }
+  .tool-headcard {
+    padding: 32px 28px;
+    border-right: 1px solid var(--line);
+    position: relative;
+    background: var(--ink-2);
+    transition: background .25s;
+  }
+  .tool-headcard:last-child { border-right: 0; }
+  .tool-headcard:hover { background: var(--ink-3); }
+  .tool-headcard .vendor {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--mute);
+    margin-bottom: 10px;
+  }
+  .tool-headcard .tname {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 30px;
+    color: var(--bone);
+    letter-spacing: -0.01em;
+    margin-bottom: 8px;
+  }
+  .tool-headcard .twho {
+    font-family: "Noto Sans TC", sans-serif;
+    font-size: 13.5px;
+    color: var(--bone-dim);
+    line-height: 1.6;
+  }
+  .tool-headcard .tband {
+    height: 3px;
+    width: 40px;
+    margin-top: 18px;
+    background: var(--persimmon);
+  }
+  .tool-headcard.gg .tband { background: var(--google); }
+  .tool-headcard.an .tband { background: var(--anthropic); }
+  .tool-headcard.oa .tband { background: var(--openai); }
+
+  .compare-table {
+    border: 1px solid var(--line);
+    overflow-x: auto;
+  }
+  .compare-table table {
+    width: 100%;
+    min-width: 880px;
+    border-collapse: collapse;
+  }
+  .compare-table th, .compare-table td {
+    padding: 18px 22px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+    vertical-align: top;
+  }
+  .compare-table th:last-child, .compare-table td:last-child { border-right: 0; }
+  .compare-table tr:last-child td { border-bottom: 0; }
+  .compare-table thead th {
+    background: var(--ink-2);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--mute);
+    font-weight: 500;
+    border-bottom: 1px solid var(--line);
+  }
+  .compare-table thead th.tool {
+    color: var(--bone);
+    font-family: var(--serif);
+    font-size: 17px;
+    letter-spacing: -0.01em;
+    text-transform: none;
+    font-weight: 400;
+  }
+  .compare-table thead th.tool .tag {
+    display: block;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--mute);
+    margin-top: 4px;
+    text-transform: uppercase;
+  }
+  .compare-table tbody td.row-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--mute);
+    background: var(--ink-2);
+    width: 180px;
+  }
+  .compare-table tbody td {
+    font-family: "Noto Sans TC", sans-serif;
+    font-size: 14px;
+    color: var(--bone-dim);
+    line-height: 1.55;
+  }
+  .compare-table tbody td strong {
+    color: var(--bone);
+    font-weight: 500;
+  }
+  .compare-table tbody tr:hover td:not(.row-label) { background: rgba(232, 98, 61, 0.04); }
+  .compare-table .check { color: var(--jade); font-weight: 500; }
+  .compare-table .cross { color: var(--mute); }
+  .compare-table .price {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--persimmon);
+    letter-spacing: 0.02em;
+  }
+  .compare-table .pill {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border: 1px solid var(--line);
+    color: var(--bone-dim);
+    margin-right: 4px;
+    margin-bottom: 4px;
+  }
+  .compare-table .pill.hot { color: var(--persimmon); border-color: var(--persimmon); }
+  @media (max-width: 720px) {
+    .tools-intro { grid-template-columns: 1fr; }
+    .tool-headcard { border-right: 0; border-bottom: 1px solid var(--line); }
+    .tool-headcard:last-child { border-bottom: 0; }
+  }
+
+  .verdict {
+    margin-top: 56px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border: 1px solid var(--line);
+  }
+  .verdict-cell {
+    padding: 32px 28px;
+    border-right: 1px solid var(--line);
+    background: var(--ink-2);
+  }
+  .verdict-cell:last-child { border-right: 0; }
+  .verdict-cell .vlabel {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--persimmon);
+    margin-bottom: 12px;
+  }
+  .verdict-cell .vbig {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 22px;
+    color: var(--bone);
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+  .verdict-cell p {
+    font-family: "Noto Sans TC", sans-serif;
+    font-size: 14px;
+    color: var(--bone-dim);
+    line-height: 1.65;
+  }
+  @media (max-width: 720px) {
+    .verdict { grid-template-columns: 1fr; }
+    .verdict-cell { border-right: 0; border-bottom: 1px solid var(--line); }
+    .verdict-cell:last-child { border-bottom: 0; }
+  }
+
+  /* ─────────── install sections (ch04/05/06) ─────────── */
+  .install-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .install-meta { position: sticky; top: 100px; }
+  .install-meta .badge {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 8px 14px;
+    border: 1px solid var(--persimmon);
+    color: var(--persimmon);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .install-meta .badge::before {
+    content: "";
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--persimmon);
+    box-shadow: 0 0 12px var(--persimmon);
+  }
+  .install-meta h2 {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(28px, 3.4vw, 44px);
+    line-height: 1.05;
+    color: var(--bone);
+    letter-spacing: -0.02em;
+    margin-bottom: 18px;
+  }
+  .install-meta h2 em {
+    font-family: var(--serif-italic);
+    font-style: italic;
+    color: var(--persimmon);
+  }
+  .install-meta .why-it-matters {
+    font-family: "Noto Serif TC", serif;
+    font-weight: 300;
+    font-size: 16.5px;
+    color: var(--bone-dim);
+    line-height: 1.8;
+    margin-bottom: 28px;
+  }
+  .install-meta .why-it-matters strong { color: var(--bone); font-weight: 500; }
+  .install-meta .req-list { list-style: none; border-top: 1px solid var(--line); }
+  .install-meta .req-list li {
+    border-bottom: 1px solid var(--line);
+    padding: 14px 0;
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 18px;
+    font-family: "Noto Sans TC", sans-serif;
+    font-size: 14px;
+    color: var(--bone-dim);
+  }
+  .install-meta .req-list li span {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--mute);
+    padding-top: 2px;
+  }
+
+  .step-stack { display: flex; flex-direction: column; gap: 24px; }
+  .step {
+    border: 1px solid var(--line);
+    background: var(--ink-2);
+    padding: 32px;
+    position: relative;
+    transition: border-color .3s;
+  }
+  .step:hover { border-color: var(--persimmon); }
+  .step .step-num {
+    font-family: var(--serif-italic);
+    font-style: italic;
+    font-size: 64px;
+    line-height: 0.85;
+    color: var(--persimmon);
+    position: absolute;
+    top: 20px; right: 26px;
+    opacity: 0.7;
+  }
+  .step h4 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 22px;
+    color: var(--bone);
+    margin-bottom: 12px;
+    padding-right: 80px;
+    letter-spacing: -0.01em;
+  }
+  .step .body {
+    font-family: "Noto Sans TC", sans-serif;
+    font-size: 15px;
+    color: var(--bone-dim);
+    line-height: 1.75;
+  }
+  .step .body p + p { margin-top: 10px; }
+  .step .body strong { color: var(--bone); font-weight: 500; }
+  .step .code {
+    margin-top: 18px;
+    background: var(--ink);
+    border: 1px solid var(--line);
+    padding: 14px 16px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--jade);
+    overflow-x: auto;
+    white-space: nowrap;
+    position: relative;
+  }
+  .step .code::before { content: "$"; color: var(--mute); margin-right: 10px; }
+  .step .note {
+    margin-top: 14px;
+    padding: 12px 16px;
+    background: rgba(232, 98, 61, 0.06);
+    border-left: 2px solid var(--persimmon);
+    font-family: "Noto Sans TC", sans-serif;
+    font-size: 13.5px;
+    color: var(--bone-dim);
+    line-height: 1.65;
+  }
+  .step .note strong { color: var(--persimmon); font-weight: 500; }
+  .step .link-row { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .step .link-row a {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 7px 12px;
+    border: 1px solid var(--line);
+    color: var(--bone-dim);
+    transition: all .25s;
+  }
+  .step .link-row a:hover { border-color: var(--persimmon); color: var(--persimmon); transform: translateY(-2px); }
+  @media (max-width: 900px) {
+    .install-section { grid-template-columns: 1fr; gap: 40px; }
+    .install-meta { position: static; }
+  }
+
+  /* ─────────── ch07: extensions ─────────── */
+  .ext-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border: 1px solid var(--line);
+  }
+  .ext {
+    padding: 32px 28px;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    background: var(--ink-2);
+    position: relative;
+    transition: background .3s;
+  }
+  .ext:nth-child(3n) { border-right: 0; }
+  .ext:hover { background: var(--ink-3); }
+  .ext .tag {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--mute);
+    margin-bottom: 14px;
+  }
+  .ext .tag span { color: var(--persimmon); }
+  .ext h4 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 22px;
+    color: var(--bone);
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
+  }
+  .ext p {
+    font-family: "Noto Sans TC", sans-serif;
+    font-size: 14px;
+    color: var(--bone-dim);
+    line-height: 1.65;
+  }
+  .ext .pkg {
+    margin-top: 14px;
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--jade);
+    padding: 4px 10px;
+    background: var(--ink);
+    border: 1px solid var(--line);
+  }
+  @media (max-width: 900px) {
+    .ext-grid { grid-template-columns: 1fr 1fr; }
+    .ext:nth-child(3n) { border-right: 1px solid var(--line); }
+    .ext:nth-child(2n) { border-right: 0; }
+  }
+  @media (max-width: 600px) {
+    .ext-grid { grid-template-columns: 1fr; }
+    .ext { border-right: 0 !important; }
+  }
+
+  /* ─────────── ch08: prompt tips ─────────── */
+  .prompt-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+  .prompt-item {
+    padding: 36px 32px;
+    border-bottom: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+    transition: background .3s;
+  }
+  .prompt-item:nth-child(2n) { border-right: 0; }
+  .prompt-item:hover { background: var(--ink-2); }
+  .prompt-item .ord {
+    font-family: var(--serif-italic);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--persimmon);
+    margin-bottom: 8px;
+    letter-spacing: 0.04em;
+  }
+  .prompt-item h4 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 24px;
+    color: var(--bone);
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
+  }
+  .prompt-item h4 .zh { font-family: "Noto Serif TC", serif; font-weight: 300; }
+  .prompt-item p {
+    font-family: "Noto Sans TC", sans-serif;
+    font-size: 14.5px;
+    color: var(--bone-dim);
+    line-height: 1.7;
+    margin-bottom: 14px;
+  }
+  .prompt-item .example {
+    background: var(--ink);
+    border: 1px dashed var(--line);
+    padding: 14px 16px;
+    font-family: "Noto Sans TC", sans-serif;
+    font-size: 13.5px;
+    color: var(--jade);
+    line-height: 1.65;
+    font-style: italic;
+  }
+  .prompt-item .example::before {
+    content: "示範 ›";
+    display: block;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--mute);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    font-style: normal;
+  }
+  @media (max-width: 820px) {
+    .prompt-list { grid-template-columns: 1fr; }
+    .prompt-item { border-right: 0; }
+  }
+
+  /* ─────────── ch09: practical recipe cards ─────────── */
+  .recipe-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+  .recipe {
+    background: var(--ink-2);
+    border: 1px solid var(--line);
+    padding: 36px 32px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .3s, transform .3s;
+  }
+  .recipe:hover { border-color: var(--persimmon); transform: translateY(-3px); }
+  .recipe::after {
+    content: attr(data-num);
+    position: absolute;
+    top: -8px; right: 18px;
+    font-family: var(--serif-italic);
+    font-style: italic;
+    font-size: 90px;
+    color: rgba(232, 98, 61, 0.12);
+    line-height: 1;
+    pointer-events: none;
+  }
+  .recipe .badges {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 16px;
+    position: relative; z-index: 1;
+  }
+  .recipe .badges span {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border: 1px solid var(--line);
+    color: var(--bone-dim);
+  }
+  .recipe .badges .level { color: var(--jade); border-color: rgba(136, 168, 122, 0.4); }
+  .recipe .badges .time { color: var(--persimmon); border-color: rgba(232, 98, 61, 0.4); }
+  .recipe h4 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 26px;
+    color: var(--bone);
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+    position: relative; z-index: 1;
+  }
+  .recipe h4 .en {
+    display: block;
+    font-family: var(--serif-italic);
+    font-style: italic;
+    font-size: 15px;
+    color: var(--mute);
+    margin-top: 4px;
+    font-weight: 400;
+  }
+  .recipe .why {
+    font-family: "Noto Sans TC", sans-serif;
+    font-size: 14px;
+    color: var(--bone-dim);
+    line-height: 1.65;
+    margin-bottom: 18px;
+  }
+  .recipe .prompt-block {
+    background: var(--ink);
+    border-left: 3px solid var(--persimmon);
+    padding: 18px 20px;
+    font-family: "Noto Sans TC", sans-serif;
+    font-size: 14px;
+    color: var(--bone);
+    line-height: 1.75;
+    position: relative;
+  }
+  .recipe .prompt-block::before {
+    content: "PROMPT";
+    display: block;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--persimmon);
+    margin-bottom: 10px;
+  }
+  .recipe .expect {
+    margin-top: 14px;
+    font-family: "Noto Serif TC", serif;
+    font-weight: 300;
+    font-size: 13.5px;
+    color: var(--mute);
+    line-height: 1.6;
+    font-style: italic;
+  }
+  .recipe .expect strong { color: var(--bone); font-style: normal; font-weight: 500; }
+  .recipe .prompt-block + .prompt-block { margin-top: 14px; }
+  .recipe .prompt-block.casual { border-left-color: var(--jade); }
+  .recipe .prompt-block.casual::before { content: "對話版 · 一句話下指令"; color: var(--jade); }
+  .recipe .prompt-block.detailed::before { content: "規格版 · 把細節列清楚"; }
+  .recipe .expected {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--line);
+    position: relative;
+    z-index: 1;
+  }
+  .recipe .expected .exp-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--persimmon);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .recipe .expected ul { list-style: none; margin: 0; padding: 0; }
+  .recipe .expected li {
+    font-family: "Noto Sans TC", sans-serif;
+    font-size: 13.5px;
+    color: var(--bone-dim);
+    line-height: 1.65;
+    padding-left: 22px;
+    position: relative;
+    margin-bottom: 7px;
+  }
+  .recipe .expected li::before {
+    content: "✓";
+    position: absolute;
+    left: 0; top: 0;
+    color: var(--jade);
+    font-weight: 700;
+  }
+  .recipe .expected li strong { color: var(--bone); font-weight: 500; }
+  .recipe .for-who {
+    margin-top: 14px;
+    font-family: "Noto Serif TC", serif;
+    font-weight: 300;
+    font-size: 13px;
+    color: var(--mute);
+    line-height: 1.55;
+    font-style: italic;
+    padding-left: 14px;
+    border-left: 1px solid var(--line);
+  }
+  .recipe .for-who strong { color: var(--bone-dim); font-style: normal; font-weight: 500; }
+  @media (max-width: 820px) { .recipe-grid { grid-template-columns: 1fr; } }
+
+  /* ─────────── ch10: insights ─────────── */
+  .insights {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 80px;
+    align-items: start;
+    margin-bottom: 80px;
+  }
+  .insights .opener {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(26px, 3vw, 40px);
+    line-height: 1.3;
+    color: var(--bone);
+    letter-spacing: -0.01em;
+    position: sticky;
+    top: 110px;
+  }
+  .insights .opener em {
+    font-family: var(--serif-italic);
+    font-style: italic;
+    color: var(--persimmon);
+  }
+  .insights .opener .sig {
+    margin-top: 24px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--mute);
+  }
+  .insights-body { font-family: "Noto Serif TC", serif; font-weight: 300; }
+  .insights-body p {
+    font-size: 17px;
+    line-height: 1.85;
+    color: var(--bone-dim);
+    margin-bottom: 22px;
+  }
+  .insights-body p strong { color: var(--bone); font-weight: 500; }
+  .insights-body p .hl {
+    background: linear-gradient(180deg, transparent 60%, rgba(232, 98, 61, 0.22) 60%);
+    color: var(--bone);
+  }
+  .insights-body h3 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 28px;
+    color: var(--bone);
+    letter-spacing: -0.01em;
+    margin: 40px 0 16px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    position: relative;
+  }
+  .insights-body h3::before {
+    content: attr(data-num);
+    position: absolute;
+    top: 22px;
+    right: 0;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    color: var(--persimmon);
+    text-transform: uppercase;
+  }
+  @media (max-width: 900px) {
+    .insights { grid-template-columns: 1fr; gap: 32px; }
+    .insights .opener { position: static; }
+  }
+
+  .num-strip {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    border: 1px solid var(--line);
+    background: var(--ink-2);
+    margin-bottom: 60px;
+  }
+  .num-cell {
+    padding: 28px 22px;
+    border-right: 1px solid var(--line);
+    text-align: left;
+  }
+  .num-cell:last-child { border-right: 0; }
+  .num-cell .n {
+    font-family: var(--serif-italic);
+    font-style: italic;
+    font-size: 48px;
+    color: var(--persimmon);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .num-cell .n .unit {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--mute);
+    margin-left: 4px;
+    letter-spacing: 0.04em;
+  }
+  .num-cell .l {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+  }
+  @media (max-width: 820px) {
+    .num-strip { grid-template-columns: repeat(2, 1fr); }
+    .num-cell { border-right: 0; border-bottom: 1px solid var(--line); }
+    .num-cell:nth-child(odd) { border-right: 1px solid var(--line); }
+    .num-cell:nth-child(2n) { border-right: 0; }
+    .num-cell:last-child { grid-column: span 2; }
+  }
+
+  /* ─────────── ch11: portfolio ─────────── */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0;
+    margin-bottom: 36px;
+    border-bottom: 1px solid var(--line);
+  }
+  .filter-btn {
+    background: none;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    color: var(--mute);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    padding: 14px 20px;
+    cursor: pointer;
+    transition: all .25s;
+    position: relative;
+    margin-bottom: -1px;
+  }
+  .filter-btn:hover { color: var(--bone); }
+  .filter-btn.active { color: var(--persimmon); border-bottom-color: var(--persimmon); }
+  .filter-btn .count { color: var(--mute-2); margin-left: 6px; font-size: 9px; }
+
+  .portfolio {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 20px;
+  }
+  .work {
+    grid-column: span 4;
+    border: 1px solid var(--line);
+    background: var(--ink-2);
+    padding: 28px;
+    transition: all .4s cubic-bezier(.2,.7,.2,1);
+    display: flex; flex-direction: column;
+    min-height: 260px;
+    position: relative;
+    overflow: hidden;
+  }
+  .work::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(400px 300px at var(--mx, 50%) var(--my, 50%), rgba(232,98,61,0.08), transparent 60%);
+    opacity: 0;
+    transition: opacity .4s;
+    pointer-events: none;
+  }
+  .work:hover::before { opacity: 1; }
+  .work:hover { transform: translateY(-4px); border-color: var(--persimmon); }
+  .work.feat { grid-column: span 8; min-height: 320px; }
+  .work.feat .name { font-size: 32px; }
+  .work-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 14px;
+    margin-bottom: auto;
+  }
+  .work .cat {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--persimmon);
+  }
+  .work .status {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--mute);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .work .status::before {
+    content: "";
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--jade);
+  }
+  .work.wip .status::before { background: var(--champagne); }
+  .work .name {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 24px;
+    color: var(--bone);
+    margin-top: 40px;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+  }
+  .work .name .en {
+    display: block;
+    font-family: var(--serif-italic);
+    font-style: italic;
+    font-size: 0.55em;
+    color: var(--mute);
+    margin-top: 6px;
+    font-weight: 400;
+  }
+  .work .desc {
+    margin-top: 12px;
+    font-family: "Noto Sans TC", sans-serif;
+    font-size: 13.5px;
+    color: var(--bone-dim);
+    line-height: 1.6;
+  }
+  .work .stack {
+    margin-top: 14px;
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .work .stack span {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.06em;
+    color: var(--mute);
+    padding: 3px 8px;
+    border: 1px solid var(--line);
+  }
+  .work-foot {
+    margin-top: 18px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid var(--line);
+    padding-top: 14px;
+  }
+  .work .visit {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--bone);
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: color .25s, gap .25s;
+  }
+  .work .visit:hover { color: var(--persimmon); gap: 14px; }
+  .work .visit.dim { color: var(--mute); pointer-events: none; }
+  .work .repo {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--mute);
+    letter-spacing: 0.16em;
+    transition: color .25s;
+  }
+  .work .repo:hover { color: var(--bone); }
+  .work[hidden] { display: none; }
+  @media (max-width: 1100px) {
+    .work { grid-column: span 6; }
+    .work.feat { grid-column: span 12; }
+  }
+  @media (max-width: 720px) {
+    .work, .work.feat { grid-column: span 12; }
+  }
+
+  /* ─────────── cta ─────────── */
+  .cta {
+    padding: 140px var(--gutter);
+    border-top: 1px solid var(--line-soft);
+    text-align: center;
+    position: relative;
+    background: radial-gradient(800px 500px at 50% 0%, rgba(232, 98, 61, 0.10), transparent 70%);
+  }
+  .cta .pre {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--persimmon);
+    margin-bottom: 28px;
+  }
+  .cta h2 {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(48px, 8vw, 120px);
+    line-height: 0.95;
+    color: var(--bone);
+    letter-spacing: -0.03em;
+    max-width: 16ch;
+    margin: 0 auto 32px;
+  }
+  .cta h2 em { font-family: var(--serif-italic); font-style: italic; color: var(--persimmon); }
+  .cta .sub {
+    font-family: "Noto Serif TC", serif;
+    font-weight: 300;
+    font-size: clamp(17px, 1.4vw, 21px);
+    color: var(--bone-dim);
+    max-width: 52ch;
+    margin: 0 auto 48px;
+    line-height: 1.7;
+  }
+  .cta-actions { display: inline-flex; flex-wrap: wrap; gap: 14px; justify-content: center; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 14px;
+    padding: 18px 32px;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    border: 1px solid var(--bone);
+    color: var(--bone);
+    transition: all .3s cubic-bezier(.2,.7,.2,1);
+    cursor: pointer;
+    background: none;
+  }
+  .btn:hover { background: var(--persimmon); border-color: var(--persimmon); color: var(--ink); gap: 22px; }
+  .btn.primary { background: var(--persimmon); border-color: var(--persimmon); color: var(--ink); }
+  .btn.primary:hover { background: var(--bone); border-color: var(--bone); color: var(--ink); }
+  .btn .arr { display: inline-block; transition: transform .3s; }
+
+  /* ─────────── footer ─────────── */
+  footer.foot {
+    padding: 80px var(--gutter) 40px;
+    border-top: 1px solid var(--line);
+    background: var(--ink-2);
+  }
+  .foot-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 60px;
+  }
+  .foot h5 {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--mute);
+    margin-bottom: 18px;
+  }
+  .foot ul { list-style: none; }
+  .foot li { margin-bottom: 10px; font-family: "Noto Sans TC", sans-serif; font-size: 13.5px; }
+  .foot li a { color: var(--bone-dim); transition: color .25s; }
+  .foot li a:hover { color: var(--persimmon); }
+  .foot-mark {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: 32px;
+    color: var(--bone);
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .foot-mark em { font-family: var(--serif-italic); font-style: italic; color: var(--persimmon); }
+  .foot-tag {
+    font-family: "Noto Serif TC", serif;
+    font-weight: 300;
+    font-size: 14px;
+    color: var(--bone-dim);
+    line-height: 1.7;
+    max-width: 36ch;
+  }
+  .foot-bottom {
+    border-top: 1px solid var(--line);
+    padding-top: 28px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--mute);
+  }
+  @media (max-width: 820px) {
+    .foot-grid { grid-template-columns: 1fr 1fr; }
+    .foot-bottom { flex-direction: column; gap: 12px; align-items: flex-start; }
+  }
+
+  /* ─────────── progress dots ─────────── */
+  .progress-rail {
+    position: fixed;
+    right: 28px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 50;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .progress-rail a {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    border: 1px solid var(--mute);
+    transition: all .3s;
+    position: relative;
+  }
+  .progress-rail a:hover { background: var(--persimmon); border-color: var(--persimmon); }
+  .progress-rail a.on { background: var(--persimmon); border-color: var(--persimmon); }
+  .progress-rail a::after {
+    content: attr(data-label);
+    position: absolute;
+    right: 18px; top: 50%; transform: translateY(-50%);
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--bone);
+    white-space: nowrap;
+    opacity: 0; pointer-events: none;
+    transition: opacity .25s;
+  }
+  .progress-rail a:hover::after { opacity: 1; }
+  @media (max-width: 1000px) { .progress-rail { display: none; } }
+
+  /* reveal on scroll */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+
+  .accent { color: var(--persimmon); }
+  .mono { font-family: var(--mono); letter-spacing: 0.04em; }
+
+</style>
+</head>
+<body>
+
+<!-- ─────────── topbar ─────────── -->
+<header class="topbar">
+  <div class="mark">
+    <span class="seal">L</span>
+    <span>Leg · Vibe Coding 讀書會</span>
+  </div>
+  <nav>
+    <a href="#vibe">vibe</a>
+    <a href="#why">why</a>
+    <a href="#tools">tools</a>
+    <a href="#antigravity">antigravity</a>
+    <a href="#claude">claude</a>
+    <a href="#codex">codex</a>
+    <a href="#prompts">prompts</a>
+    <a href="#recipes">recipes</a>
+    <a href="#insights">insights</a>
+    <a href="#works">works</a>
+    <a href="antigravity-guide.html" style="color: var(--persimmon); border: 1px solid var(--persimmon); padding: 4px 10px; border-radius: 3px;">教材 ↗</a>
+  </nav>
+  <div class="meta">2026 · Issue 04 / Vol. 01</div>
+</header>
+
+<!-- ─────────── hero ─────────── -->
+<section class="hero" id="top">
+  <div class="hero-ornament" aria-hidden="true">
+    <svg viewBox="0 0 200 200">
+      <defs>
+        <path id="circ" d="M100,100 m-78,0 a78,78 0 1,1 156,0 a78,78 0 1,1 -156,0" />
+      </defs>
+      <text><textPath href="#circ">VIBE CODING · 氛圍編程 · 給超級新手 · 從零到上線 · </textPath></text>
+    </svg>
+    <div class="core"><div class="glyph">∞</div></div>
+  </div>
+
+  <div class="issue-line">
+    <span>AI 讀書會 · No.01</span>
+    <span class="rule"></span>
+    <span>2026 / 04 / 27</span>
+  </div>
+
+  <h1>
+    Vibe<br />
+    <em>Coding.</em>
+    <span class="small">把英文（中文）當程式語言，讓 AI 把你的想法做成網站</span>
+  </h1>
+
+  <div class="deck">
+    <p class="lead">
+      這是一份給<em>超級新手</em>的入門指引。
+      你不必先會 JavaScript、不用懂 React，更不必背語法。<br /><br />
+      接下來的一個小時，我會帶你看 — 一個普通人，如何在<strong>一個月內</strong>用 AI 做出 24 件作品；以及你今晚下班後，如何安裝好工具、寫下第一段「氛圍程式碼」。
+    </p>
+    <aside class="colophon">
+      Presenter <span>Leg</span><br />
+      Stack <span>Antigravity · Claude Code · Codex</span><br />
+      Output <span>24 sites · 178 commits · 1 month</span><br />
+      Audience <span>Absolute beginners</span>
+    </aside>
+  </div>
+</section>
+
+<!-- ─────────── ch01: vibe coding ─────────── -->
+<section class="chapter" id="vibe">
+  <div class="chapter-head reveal">
+    <div class="chapter-num">01</div>
+    <div>
+      <h2 class="chapter-title">
+        What is Vibe Coding<span class="zh">什麼是氛圍編程</span>
+      </h2>
+    </div>
+    <div class="chapter-marker">
+      Origin · 2025/02<br />
+      <span>Andrej Karpathy</span>
+    </div>
+  </div>
+
+  <div class="vibe-grid reveal">
+    <div>
+      <p class="pull-quote">
+        There's a new kind of coding I call <em>vibe coding</em>, where you fully give in to the vibes, embrace exponentials, and forget that the code even exists.
+      </p>
+      <p class="quote-attr">— <span>Andrej Karpathy</span> · OpenAI 共同創辦人 · 2025</p>
+    </div>
+    <div class="vibe-body">
+      <p>
+        Vibe coding 是 2025 年 2 月由 OpenAI 共同創辦人 <strong>Andrej Karpathy</strong> 提出的新名詞。
+        意思很白話：<span class="hl">你不再一行一行寫程式，而是用「自然語言」描述想要的成果</span>，由 AI 把它寫出來。
+      </p>
+      <p>
+        Karpathy 說：「最熱門的新程式語言，是<strong>英文</strong>。」 — 對我們來說，是<strong>中文</strong>。你只要會打字，就能寫程式。
+      </p>
+      <p>
+        在 vibe coding 的世界裡，工程師的角色從<strong>打字員</strong>變成<strong>導演</strong>：你提需求、看結果、給回饋；AI 負責讀錯誤、改 bug、補功能。程式碼當然還在，只是它不再是你必須親手雕琢的東西。
+      </p>
+      <p>
+        2026 年的今天，Karpathy 自己也說 vibe coding 過時了 — 但不是因為它失敗，而是因為它變成了<strong>專業開發者的預設工作流</strong>。對新手而言，它仍是一道最低的門檻。
+      </p>
+    </div>
+  </div>
+
+  <div class="fact-strip reveal">
+    <div class="fact"><div class="num">2025</div><div class="lbl">Coined</div><div class="desc">由 Karpathy 在 X 平台首次提出</div></div>
+    <div class="fact"><div class="num">∞</div><div class="lbl">Languages</div><div class="desc">中文、英文、台語都可以</div></div>
+    <div class="fact"><div class="num">10×</div><div class="lbl">Speed</div><div class="desc">想法到上線只要幾小時</div></div>
+    <div class="fact"><div class="num">0</div><div class="lbl">Background</div><div class="desc">不需任何程式基礎</div></div>
+  </div>
+</section>
+
+<!-- ─────────── ch02: why ─────────── -->
+<section class="chapter" id="why">
+  <div class="chapter-head reveal">
+    <div class="chapter-num">02</div>
+    <div>
+      <h2 class="chapter-title">
+        Why Now<span class="zh">為什麼是現在</span>
+      </h2>
+    </div>
+    <div class="chapter-marker">
+      Use cases<br />
+      <span>For everyone</span>
+    </div>
+  </div>
+
+  <div class="why-grid">
+    <div class="why-card feat reveal" data-num="00">
+      <div class="icon">★</div>
+      <h3>
+        把「我想要⋯」變成可以用的東西<span class="zh">From an idea, to a real working tool — in one evening.</span>
+      </h3>
+      <p style="font-size:16px; max-width:60ch;">
+        過去做一個網站／工具，要學前後端、租主機、寫 API。現在，你只要描述需求，工具就會誕生。<br />
+        我這個月做的 24 個作品 — 從健身追蹤、薩提爾自我覺察、台股看盤到電商網站 — 全部是這樣完成的。
+      </p>
+    </div>
+    <div class="why-card reveal" data-num="01">
+      <div class="icon">A</div>
+      <h3>解決自己的問題<span class="zh">Scratch your own itch</span></h3>
+      <p>每月被銀行帳單轟炸？做一個自動聚合的記帳工具。想戒掉 IG？做一個自我提醒的網站。AI 讓「自製工具」變得便宜。</p>
+    </div>
+    <div class="why-card reveal" data-num="02">
+      <div class="icon">B</div>
+      <h3>把企劃變成 Demo<span class="zh">Pitch with prototypes</span></h3>
+      <p>不再用 PPT 講想法。用一個能點擊、能體驗的網站 — 主管、合作夥伴、贊助方一秒就懂。</p>
+    </div>
+    <div class="why-card reveal" data-num="03">
+      <div class="icon">C</div>
+      <h3>學新東西最快的路<span class="zh">Learn by building</span></h3>
+      <p>讀 10 本書，不如做一個專案。Vibe coding 把學習成本壓到極低 — 你會在做的過程中，自然學會邏輯、結構、設計。</p>
+    </div>
+    <div class="why-card reveal" data-num="04">
+      <div class="icon">D</div>
+      <h3>副業 / SaaS 雛型<span class="zh">Side-projects, faster</span></h3>
+      <p>從點子到上線只要一個週末。失敗成本接近零，但成功的話 — 一個小工具就可能養活自己。</p>
+    </div>
+    <div class="why-card reveal" data-num="05">
+      <div class="icon">E</div>
+      <h3>給家人 / 社群的小禮物<span class="zh">Gifts for community</span></h3>
+      <p>幫媽媽做一個食譜網站，幫公益團體做一個淨灘紀錄平台 — 都是用這套方法做出來的。</p>
+    </div>
+    <div class="why-card reveal" data-num="06">
+      <div class="icon">F</div>
+      <h3>提升職場戰力<span class="zh">Level up at work</span></h3>
+      <p>會跟 AI 對話的人，不會被 AI 取代。把這套技能帶進你的工作裡，自動化重複任務、做數據儀表板。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── ch03: three tools comparison ─────────── -->
+<section class="chapter" id="tools">
+  <div class="chapter-head reveal">
+    <div class="chapter-num">03</div>
+    <div>
+      <h2 class="chapter-title">
+        Three Tools, One Goal<span class="zh">三大主流 AI 編程工具一覽</span>
+      </h2>
+    </div>
+    <div class="chapter-marker">
+      Compared<br />
+      <span>2026/04 · 最新</span>
+    </div>
+  </div>
+
+  <p class="reveal" style="max-width:62ch; font-family:'Noto Serif TC',serif; font-weight:300; font-size:17px; color:var(--bone-dim); line-height:1.85; margin-bottom:32px;">
+    2026 年 vibe coding 的三巨頭分別由 <strong style="color:var(--bone)">Google</strong>、<strong style="color:var(--bone)">Anthropic</strong>、<strong style="color:var(--bone)">OpenAI</strong> 三家提出。三者背後是三種不同的世界觀 — 但目的都一樣：讓 AI 替你寫程式。<span class="hl">這個月，我三個都用過了。先看簡介、再看比較表。</span>
+  </p>
+
+  <p class="reveal" style="max-width:62ch; font-family:'Noto Sans TC',sans-serif; font-size:13.5px; color:var(--mute); line-height:1.8; margin-bottom:60px; padding:16px 20px; border-left:2px solid var(--persimmon); background:rgba(232,98,61,0.04);">
+    <strong style="color:var(--persimmon); font-family:var(--mono); font-size:10px; letter-spacing:0.3em;">UPDATED · 2026/04/27</strong><br />
+    這個 April 真是熱鬧 — <strong style="color:var(--bone)">Claude Opus 4.7</strong>（4/16）、<strong style="color:var(--bone)">GPT-5.5</strong>（4/24）兩個前沿模型相隔 8 天上線。<span class="hl">Antigravity 跟 Codex 都還有免費版可以玩</span> — 額度被砍但還活著。下表特別把<strong style="color:var(--bone)">免費版額度與刷新窗口</strong>都列出來，新手先用免費版練手感即可。
+  </p>
+
+  <!-- tool intro cards -->
+  <div class="tools-intro reveal">
+    <div class="tool-headcard gg">
+      <div class="vendor">Google · 2025/11</div>
+      <div class="tname">Antigravity</div>
+      <div class="twho">桌面 IDE。內建 Gemini 3、瀏覽器、Agent 任務指揮中心。畫面豐富，新手最容易上手。</div>
+      <div class="tband"></div>
+    </div>
+    <div class="tool-headcard an">
+      <div class="vendor">Anthropic · 2025/02</div>
+      <div class="tname">Claude Code</div>
+      <div class="twho">命令列工具（CLI）。輕、快、深。最適合已經有專案、要做正式產品的人。</div>
+      <div class="tband"></div>
+    </div>
+    <div class="tool-headcard oa">
+      <div class="vendor">OpenAI · 2025/04</div>
+      <div class="tname">Codex</div>
+      <div class="twho">CLI + 網頁 + macOS App。和 ChatGPT 訂閱共享額度，多 agent 平行作業。</div>
+      <div class="tband"></div>
+    </div>
+  </div>
+
+  <!-- comparison table -->
+  <div class="compare-table reveal">
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <th class="tool">Antigravity<span class="tag">Google · IDE</span></th>
+          <th class="tool">Claude Code<span class="tag">Anthropic · CLI</span></th>
+          <th class="tool">Codex<span class="tag">OpenAI · CLI / Web / App</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-label">推出日期</td>
+          <td>2025 / 11（隨 Gemini 3 同步）</td>
+          <td>2024 / 08（早期 CLI）</td>
+          <td>2025 / 04（CLI 開源版）</td>
+        </tr>
+        <tr>
+          <td class="row-label">最新版本</td>
+          <td>v1.20.5（2026 / 04）</td>
+          <td><strong>Opus 4.7 GA</strong>（2026 / 04 / 16）</td>
+          <td><strong>GPT-5.5</strong>（2026 / 04 / 24）</td>
+        </tr>
+        <tr>
+          <td class="row-label">主力模型</td>
+          <td><strong>Gemini 3.1 Pro</strong><br />（也可切 Claude / GPT-OSS）</td>
+          <td><strong>Claude Opus 4.7</strong> + <strong>Sonnet 4.6</strong></td>
+          <td><strong>GPT-5.5</strong>（最新）+ GPT-5.3-Codex-Spark</td>
+        </tr>
+        <tr>
+          <td class="row-label">SWE-Bench 表現</td>
+          <td>~76.2%（Gemini 3 Pro）</td>
+          <td><strong>~80.9%</strong>（Opus 4.5 起；4.7 再 +13% 編碼）</td>
+          <td>GPT-5.5 在 Codex 內超越 GPT-5.4</td>
+        </tr>
+        <tr>
+          <td class="row-label">產品形態</td>
+          <td>桌面 IDE，VS Code 內核</td>
+          <td>命令列（Win 需 Git Bash）</td>
+          <td>CLI + 網頁 + macOS App（Feb 2026）</td>
+        </tr>
+
+        <tr>
+          <td class="row-label">免費版</td>
+          <td><span class="check">✓ 有</span><strong>（個人版 $0）</strong></td>
+          <td><span class="cross">✗ 沒有</span><br />Claude Code 須訂閱 Pro 才能用</td>
+          <td><span class="check">✓ 有</span>（限時促銷，可能取消）</td>
+        </tr>
+        <tr>
+          <td class="row-label">免費版額度</td>
+          <td><strong>20 個 agent 任務 / 天</strong><br />Tab 自動補全 <strong>無上限</strong><br />可用 Gemini 3.1 / Claude / GPT-OSS</td>
+          <td>—（不適用）<br /><span style="color:var(--mute); font-size:12px;">新 API 用戶可拿 $5 試用點，可跑幾小時 Sonnet</span></td>
+          <td><strong>~5–10 個任務 / 5 小時</strong><br />（依伺服器負載浮動）<br />ChatGPT Free / Go 帳號就能用</td>
+        </tr>
+        <tr>
+          <td class="row-label">免費版刷新窗口</td>
+          <td><strong>每日 20 上限<br />週循環</strong>（過去是 5 小時 / 250 任務，<br />2025/12 砍到 20，2026/03 改為週循環）</td>
+          <td>—</td>
+          <td><strong>5 小時滾動視窗</strong></td>
+        </tr>
+        <tr>
+          <td class="row-label">入門訂閱</td>
+          <td>Google AI Pro <span class="price">$20/月</span><br />（含 Antigravity Pro 額度 + 內建點數）</td>
+          <td>Claude Pro <span class="price">$20/月</span><br />（含 Claude Code 完整使用）</td>
+          <td>ChatGPT Plus <span class="price">$20/月</span><br />（含 Codex 完整使用）</td>
+        </tr>
+        <tr>
+          <td class="row-label">頂級方案</td>
+          <td>Ultra <span class="price">$249.99</span><br />點數加購 <span class="price">$25 / 2,500 點</span></td>
+          <td>Max 5× <span class="price">$100</span> / Max 20× <span class="price">$200</span></td>
+          <td>Pro <span class="price">$100</span> 或 <span class="price">$200</span><br /><span style="font-size:11px; color:var(--mute);">5/31 前 Pro $200 限時 25× Plus</span></td>
+        </tr>
+        <tr>
+          <td class="row-label">付費版額度刷新</td>
+          <td><strong>AI 信用點數制</strong>（3 月新上路，金額不透明，社群抗議中）</td>
+          <td>5 小時滾動 + 每週上限<br />Pro 約 44k tok / 5h</td>
+          <td>5 小時視窗，依方案倍率<br />Plus 1× → Pro 20×（25× 限時）</td>
+        </tr>
+
+        <tr>
+          <td class="row-label">內建瀏覽器</td>
+          <td><span class="check">✓ Browser Subagent</span> — AI 可看畫面、點按鈕、抓 console</td>
+          <td><span class="cross">需自行打開 Chrome</span></td>
+          <td><span class="cross">需自行打開 Chrome</span></td>
+        </tr>
+        <tr>
+          <td class="row-label">多 Agent 平行</td>
+          <td><span class="check">✓ Mission Control</span> 視覺化派工</td>
+          <td>透過 git worktree + 多 session</td>
+          <td><span class="check">✓ 雲端 agent + CLI 同時跑</span></td>
+        </tr>
+        <tr>
+          <td class="row-label">沙箱 / 安全</td>
+          <td>IDE 內 review-driven 模式</td>
+          <td>Namespace 隔離 + 預設網路阻擋</td>
+          <td><strong>Linux kernel 級沙箱</strong>（三者最嚴）</td>
+        </tr>
+        <tr>
+          <td class="row-label">獨家亮點</td>
+          <td>Artifacts 合約：執行前你先核准計畫</td>
+          <td><strong>/ultrareview</strong> 多 agent 程式審查；4.7 預設 xhigh 思考</td>
+          <td>跟 ChatGPT 訂閱共用額度，不需多花錢</td>
+        </tr>
+        <tr>
+          <td class="row-label">學習曲線</td>
+          <td><span class="pill hot">最低</span>視覺化、純 GUI、按鈕點點點</td>
+          <td><span class="pill">中</span>需熟悉終端機指令</td>
+          <td><span class="pill">中</span>需熟悉終端機指令</td>
+        </tr>
+        <tr>
+          <td class="row-label">最適合誰</td>
+          <td><strong>完全新手</strong> · 想看畫面、邊寫邊預覽</td>
+          <td><strong>已有專案</strong> · 要做正式 production</td>
+          <td><strong>ChatGPT 訂戶</strong> · 想多開平行任務</td>
+        </tr>
+        <tr>
+          <td class="row-label">我的個人推薦</td>
+          <td><span class="pill hot">第一個裝 · 免費玩起</span> 練手感最快</td>
+          <td><span class="pill hot">主力工具</span> 做完整專案</td>
+          <td><span class="pill">補位 · 限時免費</span> 趁早試</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="verdict reveal">
+    <div class="verdict-cell">
+      <div class="vlabel">完全沒裝過 IDE 的人</div>
+      <div class="vbig">先裝 Antigravity</div>
+      <p><strong style="color:var(--bone);">免費版每天 20 任務</strong>夠新手玩一週的小專案。有畫面、自帶瀏覽器、Gemini 3.1 直接用。下載完 10 分鐘內就能看到 AI 寫的網頁跑起來，信心建立 +1。</p>
+    </div>
+    <div class="verdict-cell">
+      <div class="vlabel">想做正式產品的人</div>
+      <div class="vbig">主力用 Claude Code</div>
+      <p>沒免費版、$20/月起跳，但命令列簡單、改大型專案時最穩定。我這個月後段所有 production 級的網站（含這份簡報）都靠它。</p>
+    </div>
+    <div class="verdict-cell">
+      <div class="vlabel">已經有 ChatGPT 帳號</div>
+      <div class="vbig">順手再試 Codex</div>
+      <p><strong style="color:var(--bone);">連免費 ChatGPT 帳號都能用</strong>（限時促銷）— 5 小時可派 5–10 個任務。強在「雲端平行」，可同時派 3 個 agent 做不同檔案。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── ch04: antigravity ─────────── -->
+<section class="chapter" id="antigravity">
+  <div class="chapter-head reveal">
+    <div class="chapter-num">04</div>
+    <div>
+      <h2 class="chapter-title">
+        Install · Antigravity<span class="zh">安裝 Google Antigravity</span>
+      </h2>
+    </div>
+    <div class="chapter-marker">
+      Tool 01/03<br />
+      <span>Free · Gemini 3</span>
+    </div>
+  </div>
+
+  <div class="install-section">
+    <div class="install-meta reveal">
+      <div class="badge">Recommended</div>
+      <h2>由 Google 推出的<br /><em>agent-first</em><br />程式編輯器。</h2>
+      <p class="why-it-matters">
+        Antigravity 在 2025 年 11 月隨 Gemini 3 一起發表。它不是傳統的程式編輯器 — 它是一個「<strong>代理優先（agent-first）</strong>」的開發環境，內建瀏覽器、Agent Manager（任務指揮中心），讓 AI 自己幫你開檔案、執行命令、看網頁、抓 bug。
+      </p>
+      <p class="why-it-matters" style="font-size:14.5px;">
+        對新手最大的好處：<strong>有 Gemini 3.1、上手 10 分鐘、看得到畫面</strong>。
+      </p>
+      <ul class="req-list">
+        <li><span>Version</span><div>v1.20.5（2026 / 04）· Gemini 3.1 Pro</div></li>
+        <li><span>OS</span><div>Mac · Windows · Linux 皆可</div></li>
+        <li><span>RAM</span><div>建議 8GB 以上</div></li>
+        <li><span>Account</span><div>個人 Gmail（Workspace 帳號不支援）</div></li>
+        <li><span>Free</span><div><strong>20 任務 / 天</strong>（週循環）+ Tab 補全無上限</div></li>
+        <li><span>Paid</span><div>AI Pro $20/月（含內建點數）· 點數加購 $25/2500 點</div></li>
+      </ul>
+    </div>
+
+    <div class="step-stack">
+      <div class="step reveal">
+        <div class="step-num">01</div>
+        <h4>到官網下載安裝包</h4>
+        <div class="body">
+          <p>打開瀏覽器到官方網站 <strong>antigravity.google</strong>，點下載按鈕。系統會自動偵測你的作業系統（Windows / Mac / Linux）給對應的安裝檔。</p>
+        </div>
+        <div class="link-row">
+          <a href="https://antigravity.google" target="_blank" rel="noopener">antigravity.google ↗</a>
+          <a href="https://codelabs.developers.google.com/getting-started-google-antigravity" target="_blank" rel="noopener">官方 Codelab ↗</a>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">02</div>
+        <h4>執行安裝程式</h4>
+        <div class="body">
+          <p>Windows 雙擊 <strong>.exe</strong>、Mac 把圖示拖進 Applications 即可。整個過程不到 10 分鐘。</p>
+        </div>
+        <div class="note"><strong>提醒：</strong>Windows 第一次開啟可能會出現「未知發行者」警告，按「仍要執行」即可。</div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">03</div>
+        <h4>用 Gmail 登入</h4>
+        <div class="body">
+          <p>第一次啟動會請你登入 Google 帳號。記得用<strong>個人 Gmail</strong>，公司 / 學校 Workspace 帳號目前還不支援。</p>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">04</div>
+        <h4>認識 Agent Manager</h4>
+        <div class="body">
+          <p>登入後進到主畫面，最重要的就是 <strong>Agent Manager</strong>（左側面板）。把它想成「AI 任務指揮中心」 — 你寫一句話，它就會派代理去寫程式、跑測試、開瀏覽器。</p>
+          <p>建議從「<strong>Agent-assisted</strong>（人機協作）」模式開始：AI 會在每一步問你要不要繼續，比 Autopilot 安全。</p>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">05</div>
+        <h4>裝上 Browser Extension（必裝）</h4>
+        <div class="body">
+          <p>第一次叫 AI 開網頁時，會跳出 Setup 按鈕 — 它會帶你到 Chrome 商店安裝官方擴充。裝好後，AI 就能<strong>自己開頁面、點按鈕、看畫面、讀 console</strong>。對網頁開發是必備。</p>
+        </div>
+        <div class="note"><strong>狀態燈：</strong>綠色 ✓ 連線中 / 黃色 ⚠ 待設定 / 紅色 ✗ 未連線</div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">06</div>
+        <h4>第一句 Prompt：請它做一個小東西</h4>
+        <div class="body">
+          <p>建議的「Hello World」是：<em>「請幫我做一個簡單的待辦事項網頁，深色背景，能新增、刪除、勾選完成」</em>。等個 30 秒，你就會看到一個能用的網頁誕生。</p>
+        </div>
+        <div class="code">幫我用 HTML 做一個簡約黑底的 Todo App，能新增、刪除、打勾</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── ch05: claude code ─────────── -->
+<section class="chapter" id="claude">
+  <div class="chapter-head reveal">
+    <div class="chapter-num">05</div>
+    <div>
+      <h2 class="chapter-title">
+        Install · Claude Code<span class="zh">安裝 Claude Code（命令列利器）</span>
+      </h2>
+    </div>
+    <div class="chapter-marker">
+      Tool 02/03<br />
+      <span>CLI · Anthropic</span>
+    </div>
+  </div>
+
+  <div class="install-section">
+    <div class="install-meta reveal">
+      <div class="badge">Power tool</div>
+      <h2>用<em>對話</em><br />操作整個<br />專案資料夾。</h2>
+      <p class="why-it-matters">
+        Claude Code 是 Anthropic 推出的「終端機版 AI 工程師」。它跑在你的命令列裡，能讀懂你整個專案、自己開檔案、改程式、跑測試。比 Antigravity 更輕、更快，特別適合你已經有專案、想做大改造時。
+      </p>
+      <p class="why-it-matters" style="font-size:14.5px;">
+        我這個月做的後段作品 — 含這個簡報網站 — 大部分是用 Claude Code 完成的。<strong>4/16 上線的 Opus 4.7</strong> 編碼能力比 4.6 再強 13%，並新增 <strong>/ultrareview</strong> 多 agent 程式審查指令。
+      </p>
+      <ul class="req-list">
+        <li><span>Model</span><div>Claude Opus 4.7 GA · 2026/04/16 起</div></li>
+        <li><span>OS</span><div>Mac · Linux 原生 / Windows 需 Git Bash</div></li>
+        <li><span>Account</span><div>Claude.ai 付費版（Pro / Max / Team）</div></li>
+        <li><span>Free</span><div><span style="color:var(--mute)">無免費版</span> · 新 API 用戶可拿 $5 試用點（夠玩幾小時 Sonnet）</div></li>
+        <li><span>Paid</span><div>Pro $20 / Max $100 / Max $200 — 5h 滾動 + 週上限</div></li>
+      </ul>
+    </div>
+
+    <div class="step-stack">
+      <div class="step reveal">
+        <div class="step-num">01</div>
+        <h4>確認你有 Claude.ai 付費帳號</h4>
+        <div class="body">
+          <p>Claude Code 需要 <strong>Claude Pro / Max / Teams / Enterprise</strong> 任一種訂閱。免費帳號目前不支援。</p>
+        </div>
+        <div class="link-row">
+          <a href="https://claude.ai" target="_blank" rel="noopener">claude.ai ↗</a>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">02</div>
+        <h4>Windows 用戶 — 先裝 Git for Windows</h4>
+        <div class="body">
+          <p>Claude Code 在 Windows 需要 <strong>Git Bash</strong> 才能執行。如果還沒裝，直接到 git-scm.com 下載最新版，全部按下一步即可。</p>
+        </div>
+        <div class="link-row">
+          <a href="https://git-scm.com" target="_blank" rel="noopener">git-scm.com ↗</a>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">03</div>
+        <h4>執行一行安裝指令（不需要管理員）</h4>
+        <div class="body">
+          <p>打開 PowerShell（不需要「以系統管理員身分執行」），貼上下面這行指令再按 Enter。安裝程式會自動下載、設好 PATH，全程約一分鐘。</p>
+        </div>
+        <div class="code">irm https://claude.ai/install.ps1 | iex</div>
+        <div class="note"><strong>Mac / Linux：</strong> <span class="mono">curl -fsSL https://claude.ai/install.sh | bash</span></div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">04</div>
+        <h4>第一次啟動 — 輸入 claude</h4>
+        <div class="body">
+          <p>關掉再重開 PowerShell，輸入 <strong>claude</strong> 按 Enter。第一次會請你選主題色、登入 Claude 帳號。</p>
+        </div>
+        <div class="code">claude</div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">05</div>
+        <h4>cd 進你的專案，開始對話</h4>
+        <div class="body">
+          <p>把命令列切到你想做的專案資料夾，再輸入 <strong>claude</strong>。它會讀整個資料夾，然後你就可以用中文跟它聊：「<em>幫我把首頁改成深色模式</em>」、「<em>這個 bug 為什麼會出現？</em>」。</p>
+        </div>
+        <div class="code">cd C:\Users\你\Desktop\我的專案 && claude</div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">06</div>
+        <h4>學會三個必殺指令</h4>
+        <div class="body">
+          <p><strong>/help</strong> — 看所有指令<br />
+          <strong>/clear</strong> — 清空對話（避免脈絡污染）<br />
+          <strong>/init</strong> — 讓它幫你寫一份專案說明（CLAUDE.md），之後它會記得你的專案。</p>
+        </div>
+        <div class="note"><strong>進階：</strong>建立 <span class="mono">CLAUDE.md</span> 寫下「這個專案的規則」，以後 Claude 每次都會自動讀，省下你重複交代的力氣。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── ch06: codex ─────────── -->
+<section class="chapter" id="codex">
+  <div class="chapter-head reveal">
+    <div class="chapter-num">06</div>
+    <div>
+      <h2 class="chapter-title">
+        Install · Codex<span class="zh">安裝 OpenAI Codex（CLI / 網頁 / App）</span>
+      </h2>
+    </div>
+    <div class="chapter-marker">
+      Tool 03/03<br />
+      <span>OpenAI · GPT-5.3-Codex</span>
+    </div>
+  </div>
+
+  <div class="install-section">
+    <div class="install-meta reveal">
+      <div class="badge">Bundled</div>
+      <h2>已經訂 ChatGPT？<br />那你<em>已經有</em><br />Codex。</h2>
+      <p class="why-it-matters">
+        Codex 是 OpenAI 在 2025/04 推出的程式 agent。<strong>2026/04/24 剛上線的 GPT-5.5</strong> 是目前 Codex 推薦的主力模型 — 比 GPT-5.4 更聰明、用更少 token，特別擅長文件、試算表、簡報這類「商務 → 程式」的轉換工作。三種介面任你挑：命令列、網頁版 agent、macOS 桌面 App（Feb 2026 推出）。
+      </p>
+      <p class="why-it-matters" style="font-size:14.5px;">
+        <strong>限時促銷中：連免費 ChatGPT 帳號也能用 Codex</strong>（5 小時約 5–10 個任務，依負載浮動）— 不一定能持續，建議盡早試。
+      </p>
+      <ul class="req-list">
+        <li><span>Model</span><div>GPT-5.5 · 2026/04/24 起為 Codex 主力</div></li>
+        <li><span>OS</span><div>Mac · Linux · Windows（CLI 全平台支援）</div></li>
+        <li><span>Account</span><div>ChatGPT 任一帳號（含 Free / Go 限時免費）</div></li>
+        <li><span>Free</span><div>Free / Go：5–10 任務 / 5 小時（限時，可能取消）</div></li>
+        <li><span>Paid</span><div>Plus $20 / Pro $100 或 $200（額度倍率提升）</div></li>
+        <li><span>Sandbox</span><div><strong>Linux kernel 級沙箱</strong>，三者中最安全</div></li>
+      </ul>
+    </div>
+
+    <div class="step-stack">
+      <div class="step reveal">
+        <div class="step-num">01</div>
+        <h4>用任何 ChatGPT 帳號都行（免費也可）</h4>
+        <div class="body">
+          <p>Codex 額度直接綁在 ChatGPT 帳號。各方案都可用：<br />
+          <strong>Free / Go</strong>：限時促銷免費版，<span class="mono">5 小時約 5–10 任務</span>。<br />
+          <strong>Plus $20</strong>：基線額度。<br />
+          <strong>Pro $100 / $200</strong>：5–20× Plus，重度開發者用。</p>
+          <p style="margin-top:10px;">沒帳號的人 — <strong>先免費註冊一個 ChatGPT 帳號就能玩</strong>。額度雖然少，但練手很夠。</p>
+        </div>
+        <div class="link-row">
+          <a href="https://chatgpt.com/pricing" target="_blank" rel="noopener">chatgpt.com/pricing ↗</a>
+          <a href="https://developers.openai.com/codex/pricing" target="_blank" rel="noopener">官方計價 ↗</a>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">02</div>
+        <h4>用 npm 安裝 CLI（一行搞定）</h4>
+        <div class="body">
+          <p>需要先有 <strong>Node.js</strong>（沒裝先到 nodejs.org 下載）。然後在終端機跑：</p>
+        </div>
+        <div class="code">npm install -g @openai/codex</div>
+        <div class="note"><strong>Mac 用 Homebrew：</strong> <span class="mono">brew install codex</span> 也可以。</div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">03</div>
+        <h4>第一次啟動 · 用 ChatGPT 帳號登入</h4>
+        <div class="body">
+          <p>輸入 <strong>codex</strong>。第一次會打開瀏覽器叫你登入 ChatGPT — 登入後就直接綁好了，<strong>不用 API Key</strong>。</p>
+        </div>
+        <div class="code">codex</div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">04</div>
+        <h4>cd 進專案資料夾，開始對話</h4>
+        <div class="body">
+          <p>跟 Claude Code 一樣 — 切到專案資料夾，再輸入 <strong>codex</strong>。介面是一個交互式對話框，可用中文。</p>
+        </div>
+        <div class="code">cd C:\Users\你\Desktop\我的專案 && codex</div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">05</div>
+        <h4>學會 /status 看剩餘額度</h4>
+        <div class="body">
+          <p>在 codex 對話中輸入 <strong>/status</strong>，可以看到目前 5 小時 / 每週的剩餘額度。額度用完會告訴你下次重置時間，或可加購信用點數。</p>
+        </div>
+        <div class="code">/status</div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">06</div>
+        <h4>玩玩網頁版 / macOS App</h4>
+        <div class="body">
+          <p>除了 CLI，Codex 還有：<br />
+          <strong>chatgpt.com/codex</strong> — 雲端 agent，可在瀏覽器派任務、不佔本機資源。<br />
+          <strong>macOS App</strong> — 多視窗管理多個 agent，UI 更友善。<br />
+          適合「多任務平行作業」 — 例如 agent A 改前端、agent B 改後端。</p>
+        </div>
+        <div class="link-row">
+          <a href="https://chatgpt.com/codex" target="_blank" rel="noopener">chatgpt.com/codex ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── ch07: extensions ─────────── -->
+<section class="chapter" id="extensions">
+  <div class="chapter-head reveal">
+    <div class="chapter-num">07</div>
+    <div>
+      <h2 class="chapter-title">
+        Recommended Extensions<span class="zh">必裝 / 強烈推薦的擴充</span>
+      </h2>
+    </div>
+    <div class="chapter-marker">
+      Battle-tested<br />
+      <span>For Antigravity / VS Code</span>
+    </div>
+  </div>
+
+  <p class="reveal" style="max-width:62ch; font-family:'Noto Serif TC',serif; font-weight:300; font-size:17px; color:var(--bone-dim); line-height:1.8; margin-bottom:48px;">
+    Antigravity 與 VS Code 共用同一套擴充市集。這幾個是<strong style="color:var(--bone)">我這個月實戰下來，每個專案幾乎都會裝</strong>的工具。
+  </p>
+
+  <div class="ext-grid reveal">
+    <div class="ext">
+      <div class="tag">★ <span>Must Have</span> · Browser</div>
+      <h4>Antigravity Browser Extension</h4>
+      <p>讓 AI 真的能「看到」你的網頁、點按鈕、讀 console。沒裝這個，AI 是瞎子。</p>
+      <span class="pkg">@google/antigravity-browser</span>
+    </div>
+    <div class="ext">
+      <div class="tag">★ <span>Must Have</span> · Git</div>
+      <h4>GitLens</h4>
+      <p>顯示每行程式碼是誰／什麼時候改的。Vibe coding 改太多次時的救命浮木。</p>
+      <span class="pkg">eamodio.gitlens</span>
+    </div>
+    <div class="ext">
+      <div class="tag">★ <span>Must Have</span> · Lang</div>
+      <h4>Chinese (Traditional) 語言包</h4>
+      <p>整個介面變繁體中文。新手第一個該裝的，降低學習成本。</p>
+      <span class="pkg">ms-ceintl.vscode-language-pack-zh-hant</span>
+    </div>
+    <div class="ext">
+      <div class="tag">Highly · Format</div>
+      <h4>Prettier</h4>
+      <p>存檔自動把程式碼排整齊，AI 寫的東西馬上變得乾淨。</p>
+      <span class="pkg">esbenp.prettier-vscode</span>
+    </div>
+    <div class="ext">
+      <div class="tag">Highly · Color</div>
+      <h4>Live Server</h4>
+      <p>右鍵 HTML → Open with Live Server，秒開預覽，存檔自動刷新。</p>
+      <span class="pkg">ritwickdey.liveserver</span>
+    </div>
+    <div class="ext">
+      <div class="tag">Highly · Editor</div>
+      <h4>Error Lens</h4>
+      <p>把錯誤訊息直接畫在程式碼旁邊。再也不用瞇著眼找紅色波浪線。</p>
+      <span class="pkg">usernamehw.errorlens</span>
+    </div>
+    <div class="ext">
+      <div class="tag">Nice · Visual</div>
+      <h4>Material Icon Theme</h4>
+      <p>把資料夾跟檔案配上漂亮圖示，讀專案結構快一倍。</p>
+      <span class="pkg">pkief.material-icon-theme</span>
+    </div>
+    <div class="ext">
+      <div class="tag">Nice · Color</div>
+      <h4>Color Highlight</h4>
+      <p>把 #e8623d 這種 hex 直接著色顯示在編輯器裡。改顏色超快。</p>
+      <span class="pkg">naumovs.color-highlight</span>
+    </div>
+    <div class="ext">
+      <div class="tag">Nice · Web</div>
+      <h4>Tailwind CSS IntelliSense</h4>
+      <p>如果 AI 用 Tailwind（很常見）寫前端，這個會給你補字、預覽顏色。</p>
+      <span class="pkg">bradlc.vscode-tailwindcss</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── ch08: prompt tips ─────────── -->
+<section class="chapter" id="prompts">
+  <div class="chapter-head reveal">
+    <div class="chapter-num">08</div>
+    <div>
+      <h2 class="chapter-title">
+        Prompt 心法<span class="zh">把想法寫成 AI 聽得懂的指令</span>
+      </h2>
+    </div>
+    <div class="chapter-marker">
+      Field-tested · 24 sites<br />
+      <span>From real projects</span>
+    </div>
+  </div>
+
+  <div class="prompt-list reveal">
+    <div class="prompt-item">
+      <div class="ord">i.</div>
+      <h4>把 AI 當<span class="zh">「實習生」對話</span></h4>
+      <p>不要說「做一個記帳 App」，要像對新人交辦：<strong>誰用、要解決什麼問題、長什麼樣子、有什麼限制</strong>。資訊越具體，產出越貼近你想要的。</p>
+      <div class="example">
+        ❌ 做一個記帳 App<br />
+        ✓ 我老婆每天記 5 筆消費，希望手機開瀏覽器就能用，黑底、大按鈕、不要登入，資料存在瀏覽器就好。
+      </div>
+    </div>
+
+    <div class="prompt-item">
+      <div class="ord">ii.</div>
+      <h4>分階段，不要一口氣<span class="zh">Iterate, don't dump.</span></h4>
+      <p>先要「能跑的雛形」，再加細節。一次塞 20 個需求，AI 容易做歪。建議節奏：<strong>骨架 → 樣式 → 互動 → 邊角案例</strong>。</p>
+      <div class="example">
+        第一版只要能新增 / 刪除 / 列表三個功能。<br />
+        我看過確認方向對，再說下一步。
+      </div>
+    </div>
+
+    <div class="prompt-item">
+      <div class="ord">iii.</div>
+      <h4>給範例 / 給「不要」<span class="zh">Show, don't tell.</span></h4>
+      <p>貼一張畫面截圖、貼一個你喜歡的網站連結、列出「不要哪些風格」。AI 看得到具象的東西時，準度會跳一個級距。</p>
+      <div class="example">
+        我要的風格像 Linear 官網，但更暖一點、用米色。<br />
+        不要紫色漸層、不要圓角太大、不要 emoji。
+      </div>
+    </div>
+
+    <div class="prompt-item">
+      <div class="ord">iv.</div>
+      <h4>每次失敗都是<span class="zh">「素材」</span></h4>
+      <p>AI 寫錯了、樣式跑掉了 — 不要只說「改一下」，<strong>把錯誤訊息／截圖貼回去</strong>。它有 90% 的機率自己看出問題。</p>
+      <div class="example">
+        這是執行後 console 跳的錯誤：<br />
+        Uncaught TypeError: Cannot read properties of undefined.<br />
+        請找出原因並修。
+      </div>
+    </div>
+
+    <div class="prompt-item">
+      <div class="ord">v.</div>
+      <h4>事先寫好 <span class="zh">「規則檔」</span></h4>
+      <p>在專案根目錄放一份 <strong>CLAUDE.md / .agentrules</strong>，寫下「這個專案的口味」 — 用什麼框架、不用什麼套件、命名規則、語言（繁中）。AI 每次會自動讀。</p>
+      <div class="example">
+        所有 UI 文字使用繁體中文。<br />
+        不要用 React、不要用 jQuery，純 HTML + CSS + Vanilla JS。<br />
+        所有顏色定義在 CSS 變數，主色 #e8623d。
+      </div>
+    </div>
+
+    <div class="prompt-item">
+      <div class="ord">vi.</div>
+      <h4>Git 是你的安全帶<span class="zh">Commit early, commit often.</span></h4>
+      <p>每完成一個小功能就 commit 一次。AI 改壞東西時，一句 <span class="mono">git checkout .</span> 就能回到上一個能跑的狀態。<strong>沒 Git 之前，別讓 AI 大改。</strong></p>
+      <div class="example">
+        在你開始重構前，幫我先 commit 一版「v1 ok」當還原點。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── ch09: practical recipes ─────────── -->
+<section class="chapter" id="recipes">
+  <div class="chapter-head reveal">
+    <div class="chapter-num">09</div>
+    <div>
+      <h2 class="chapter-title">
+        Try Tonight<span class="zh">五個今晚就能複製貼上的 Antigravity 提示詞</span>
+      </h2>
+    </div>
+    <div class="chapter-marker">
+      Copy & paste<br />
+      <span>30 min · live result</span>
+    </div>
+  </div>
+
+  <p class="reveal" style="max-width:64ch; font-family:'Noto Serif TC',serif; font-weight:300; font-size:17px; color:var(--bone-dim); line-height:1.85; margin-bottom:32px;">
+    這些提示詞我都實際跑過 — 把整段複製貼到 <strong style="color:var(--bone)">Antigravity 的 Agent Manager</strong>，按 Enter，等 30 秒到 3 分鐘，你就能得到一個能用的網站。
+  </p>
+
+  <p class="reveal" style="max-width:64ch; font-family:'Noto Sans TC',sans-serif; font-size:14px; color:var(--mute); line-height:1.7; margin-bottom:56px; padding:14px 18px; border-left:2px solid var(--jade); background:rgba(136,168,122,0.05);">
+    <strong style="color:var(--jade); font-family:var(--mono); font-size:10px; letter-spacing:0.28em;">兩種風格</strong> &nbsp; <span class="hl">綠框</span> = 對話版（口語、一句話），<span style="color:var(--persimmon)">橘框</span> = 規格版（細節列清楚）。<strong style="color:var(--bone)">兩種都會 work</strong>，只是控制力不同。建議：第一次先用對話版看 AI 怎麼接話，再用規格版微調出你要的細節。
+  </p>
+
+  <div class="recipe-grid reveal">
+
+    <!-- 01 番茄鐘 -->
+    <article class="recipe" data-num="01">
+      <div class="badges">
+        <span class="level">★ 入門</span>
+        <span class="time">5 分鐘</span>
+        <span>單檔 HTML</span>
+      </div>
+      <h4>個人番茄鐘<span class="en">Pomodoro Timer</span></h4>
+      <p class="why">最容易看到成果的開場 — 不需要任何後端，純前端，一個檔案就跑。</p>
+
+      <div class="prompt-block casual">
+        欸 幫我做個番茄鐘網頁啦，要漂亮一點，黑底，能開始暫停重置，時間到要叫我。單檔就好。
+      </div>
+
+      <div class="prompt-block detailed">
+        幫我做一個簡約的番茄鐘網頁，單一 HTML 檔。<br />
+        1. 25 分鐘工作 / 5 分鐘休息，自動切換循環<br />
+        2. 大大的圓形倒數環，背景米黃色（#f4ece0）、字用深炭色<br />
+        3. 三顆大按鈕：開始 / 暫停 / 重置（圓角、有 hover 效果）<br />
+        4. 結束時：① 瀏覽器 alert ② 標題閃爍 ③ 用 Web Audio API 發 beep 聲<br />
+        5. 顯示「今天完成了 X 顆番茄」，存 localStorage<br />
+        6. 不要任何套件，純 HTML + CSS + Vanilla JS
+      </div>
+
+      <div class="expected">
+        <div class="exp-label">你會看到</div>
+        <ul>
+          <li>一個 <strong>timer.html</strong>，雙擊就跑</li>
+          <li>大圓圈倒數環動畫（會由滿變空）</li>
+          <li>三顆按鈕：開始 / 暫停 / 重置</li>
+          <li>結束時跳通知 + 嗶嗶聲</li>
+          <li>顯示「今日完成 X 顆」累計</li>
+        </ul>
+      </div>
+      <p class="for-who"><strong>適合誰：</strong>每個人。當作驗證 Antigravity 安裝成功的「Hello World」最合適。</p>
+    </article>
+
+    <!-- 02 QR Code 生成器 [NEW] -->
+    <article class="recipe" data-num="02">
+      <div class="badges">
+        <span class="level">★ 入門</span>
+        <span class="time">3 分鐘</span>
+        <span>單檔 HTML</span>
+      </div>
+      <h4>QR Code 生成器<span class="en">QR Code Maker</span></h4>
+      <p class="why">日常超實用 — 開會分享網址、印海報、做招牌。3 分鐘就能上線，獲得感最強。</p>
+
+      <div class="prompt-block casual">
+        做個 QR code 產生器網頁，輸入網址直接顯示 QR，可下載 PNG。
+      </div>
+
+      <div class="expected">
+        <div class="exp-label">你會看到</div>
+        <ul>
+          <li>輸入框 + 即時生成 QR code（打字就變）</li>
+          <li>「下載 PNG」按鈕</li>
+          <li>「複製到剪貼簿」按鈕（bonus）</li>
+          <li>用 qrcode.js 或 canvas API（AI 會自己選）</li>
+        </ul>
+      </div>
+      <p class="for-who"><strong>適合誰：</strong>常常需要分享連結的人 — 講師、業務、餐廳老闆。也很適合給長輩用。</p>
+    </article>
+
+    <!-- 03 每日心情打卡 [NEW] -->
+    <article class="recipe" data-num="03">
+      <div class="badges">
+        <span class="level">★ 入門</span>
+        <span class="time">10 分鐘</span>
+        <span>localStorage + Chart</span>
+      </div>
+      <h4>每日心情打卡<span class="en">Daily Mood Journal</span></h4>
+      <p class="why">自我覺察小工具 — 30 天後會看到自己的情緒曲線，比 IG 動態更真實。</p>
+
+      <div class="prompt-block casual">
+        做個每天記心情的網頁，五個 emoji 選一個，可以加一句話備註，看得到 30 天的紀錄。
+      </div>
+
+      <div class="prompt-block detailed">
+        幫我做「每日心情打卡」單頁網頁。<br />
+        1. 主畫面大字：「今天感覺如何？」+ 5 顆 emoji 大按鈕：😄 😊 😐 😔 😢<br />
+        2. 點選後顯示備註輸入框，按「儲存」<br />
+        3. 下方兩個視覺化：<br />
+        　• 折線圖：過去 30 天分數變化（😄=5、😊=4...😢=1）<br />
+        　• 日曆熱力圖：類似 GitHub contribution graph，色彩越深心情越好<br />
+        4. 同一天可重複打卡（覆蓋上一筆）<br />
+        5. 資料存 localStorage，可匯出 JSON 備份<br />
+        6. 配色：暖米黃背景 + 柔和粉紫，溫柔風，圓角設計<br />
+        7. 純單檔 HTML，圖表可用 Chart.js CDN
+      </div>
+
+      <div class="expected">
+        <div class="exp-label">你會看到</div>
+        <ul>
+          <li>每天打開就想點一下的小儀式感</li>
+          <li>30 天折線圖 — 看出你哪一週特別 down</li>
+          <li>日曆熱力圖 — 像 GitHub 種草地</li>
+          <li>備份 / 還原 JSON 按鈕</li>
+        </ul>
+      </div>
+      <p class="for-who"><strong>適合誰：</strong>正在做心理諮商或想自我覺察的人。簡單但會養成習慣。</p>
+    </article>
+
+    <!-- 04 家庭食譜本 -->
+    <article class="recipe" data-num="04">
+      <div class="badges">
+        <span class="level">★ 入門</span>
+        <span class="time">10 分鐘</span>
+        <span>localStorage</span>
+      </div>
+      <h4>家庭食譜本<span class="en">Family Recipe Book</span></h4>
+      <p class="why">給媽媽 / 太太的小禮物。資料存瀏覽器，不需註冊、不需後端，最低成本的「貼心」。</p>
+
+      <div class="prompt-block casual">
+        幫我做家裡食譜的網頁，可以加菜名、食材、步驟，配色溫暖一點，給媽媽看得到大字。
+      </div>
+
+      <div class="prompt-block detailed">
+        幫我做一個家庭食譜記錄網頁。<br />
+        1. 可新增食譜：菜名、食材清單、做法步驟、備註欄、菜系標籤（家常／節慶／快煮）<br />
+        2. 主頁列表卡片式顯示，可依菜系篩選<br />
+        3. 點進詳細頁：照片區（先放 placeholder）+ 食材 checklist + 步驟<br />
+        4. 可編輯、可刪除（刪除前要確認）<br />
+        5. 資料存 localStorage<br />
+        6. 配色暖橘色為主（#e8623d），字體用襯線體，給長輩用按鈕要大（min 48px）<br />
+        7. RWD 手機優先 — 廚房裡會手機開<br />
+        8. 純 HTML / CSS / Vanilla JS
+      </div>
+
+      <div class="expected">
+        <div class="exp-label">你會看到</div>
+        <ul>
+          <li>列表 + 詳細頁的雙頁面結構</li>
+          <li>可加菜系標籤分類（春節菜、便當菜...）</li>
+          <li>食材 checklist 可勾起來追蹤購物</li>
+          <li>整個 UI 字大、按鈕大，給長輩用</li>
+        </ul>
+      </div>
+      <p class="for-who"><strong>適合誰：</strong>家裡媽媽、太太愛做菜的人。上傳到 GitHub Pages，全家都能用同一份。</p>
+    </article>
+
+    <!-- 05 抽家事輪盤 [NEW] -->
+    <article class="recipe" data-num="05">
+      <div class="badges">
+        <span class="level">★ 入門</span>
+        <span class="time">10 分鐘</span>
+        <span>Canvas 動畫</span>
+      </div>
+      <h4>家事輪盤<span class="en">Chore Wheel</span></h4>
+      <p class="why">和另一半 / 室友吵「誰洗碗」時的救星。轉一下，認命。順便練 Canvas 動畫。</p>
+
+      <div class="prompt-block casual">
+        做個轉盤抽籤，可自己加項目，按按鈕會旋轉減速停下來，告訴我抽到哪一個。
+      </div>
+
+      <div class="prompt-block detailed">
+        幫我做「家事輪盤」單頁網頁。<br />
+        1. 上方輸入框：可動態新增 / 刪除家事項目（預設：洗碗、倒垃圾、拖地、洗衣服、買菜、丟貓砂）<br />
+        2. 中間用 Canvas 畫一個大轉盤，扇形依項目數均分，每個扇形不同顏色<br />
+        3. 中央有指針（向上）<br />
+        4. 「抽！」按鈕：輪盤旋轉 3 秒、緩動減速（easing）、停下後對應的項目跳出來<br />
+        5. 旋轉時播放 beep 聲（Web Audio API）<br />
+        6. 結果用大字顯示「今天你負責：洗碗 🧽」<br />
+        7. 配色：粉紅 + 米白，可愛風，按鈕有圓角<br />
+        8. 純單檔，無外部套件
+      </div>
+
+      <div class="expected">
+        <div class="exp-label">你會看到</div>
+        <ul>
+          <li>真的會旋轉的轉盤（Canvas 畫的）</li>
+          <li>緩動減速 — 像真實輪盤的物理感</li>
+          <li>可隨時加減項目（不會弄亂分配）</li>
+          <li>音效讓抽籤更有儀式感</li>
+        </ul>
+      </div>
+      <p class="for-who"><strong>適合誰：</strong>同居者、家庭、辦公室抽便當、抽報告主題都好用。</p>
+    </article>
+
+    <!-- 06 婚禮 RSVP [NEW] -->
+    <article class="recipe" data-num="06">
+      <div class="badges">
+        <span class="level">★★ 中等</span>
+        <span class="time">15 分鐘</span>
+        <span>表單 + 後端</span>
+      </div>
+      <h4>婚禮 / 聚會 RSVP<span class="en">Wedding RSVP Page</span></h4>
+      <p class="why">取代 Google Form。用自己的網址寄給賓客，氣勢馬上不一樣 — 而且後台你能看到誰來、誰不來。</p>
+
+      <div class="prompt-block casual">
+        幫朋友做個婚禮 RSVP 頁面，有日期地點，能填出席人數和素食需求，資料存 Firebase 我能看到。
+      </div>
+
+      <div class="prompt-block detailed">
+        幫我做一個婚禮 RSVP 網頁。<br />
+        【賓客頁】<br />
+        1. 首屏：大照片區（先 placeholder）、新人姓名、婚禮日期、地點、Google Maps 嵌入<br />
+        2. RSVP 表單：姓名、出席人數、是否素食（單選）、給新人的祝福（textarea）<br />
+        3. 提交後跳出感謝動畫 + 加入行事曆按鈕<br />
+        【後台頁】<br />
+        4. 用 ?admin=secret 開啟（簡單參數密碼），列表顯示所有 RSVP<br />
+        5. 統計：出席總人數、素食人數、未回覆人數<br />
+        6. 可下載 CSV<br />
+        【技術】<br />
+        7. 用 Firebase Firestore，請一步步教我怎麼建專案、複製 config<br />
+        8. 設計：典雅、米色為主、襯線字（Cormorant Garamond），手機優先<br />
+        9. 字體用 Google Fonts，繁中用思源宋體
+      </div>
+
+      <div class="expected">
+        <div class="exp-label">你會看到</div>
+        <ul>
+          <li>賓客手機掃 QR 進入專屬頁面（很有面子）</li>
+          <li>表單資料即時收到 Firebase</li>
+          <li>後台統計：誰來、誰素食、有多少人</li>
+          <li>下載 CSV 給婚禮顧問安排桌位</li>
+          <li>下次有聚會、生日、員工旅遊都能套用</li>
+        </ul>
+      </div>
+      <p class="for-who"><strong>適合誰：</strong>要結婚的、辦同學會的、辦小型活動的。一次做好，下次改文案就能再用。</p>
+    </article>
+
+    <!-- 07 天氣穿搭 -->
+    <article class="recipe" data-num="07">
+      <div class="badges">
+        <span class="level">★★ 中等</span>
+        <span class="time">15 分鐘</span>
+        <span>API 串接</span>
+      </div>
+      <h4>今日天氣 + 穿搭建議<span class="en">Weather + Outfit Page</span></h4>
+      <p class="why">第一次串 API 的好練習 — 用免費的 Open-Meteo 開放氣象 API，不需 API Key。</p>
+
+      <div class="prompt-block detailed">
+        幫我做一個「今日天氣穿搭網頁」。<br />
+        1. 用 Open-Meteo 免費 API（不用 key），自動偵測使用者位置（geolocation）<br />
+        2. 顯示：當下溫度、體感溫度、降雨機率、紫外線指數、未來 6 小時逐時預報<br />
+        3. 根據溫度給穿搭建議：<br />
+        　• &gt; 28°C：短袖短褲、防曬、別忘水<br />
+        　• 18~28°C：薄長袖、外套放包包<br />
+        　• 10~18°C：薄毛衣、外套必備<br />
+        　• &lt; 10°C：厚外套、圍巾、毛帽<br />
+        4. 降雨機率 &gt; 50% 顯示「☔ 帶傘」提醒<br />
+        5. 紫外線 &gt; 7 顯示「🔥 防曬」提醒<br />
+        6. 視覺：圓角卡片、米色背景、深綠重點色，柔和插畫風<br />
+        7. 純單檔 HTML，無外部套件
+      </div>
+
+      <div class="expected">
+        <div class="exp-label">你會看到</div>
+        <ul>
+          <li>瀏覽器跳「允許定位」 — 准了之後自動抓你的城市</li>
+          <li>大字顯示溫度 + 條件 + 穿搭建議</li>
+          <li>下方 6 小時逐時預報</li>
+          <li>學會：geolocation API、fetch API、條件判斷</li>
+        </ul>
+      </div>
+      <p class="for-who"><strong>適合誰：</strong>每天出門選衣服很糾結的人、機車族、家有小孩要穿衣的家長。</p>
+    </article>
+
+    <!-- 08 寵物用藥追蹤 [NEW] -->
+    <article class="recipe" data-num="08">
+      <div class="badges">
+        <span class="level">★★ 中等</span>
+        <span class="time">20 分鐘</span>
+        <span>Notification API</span>
+      </div>
+      <h4>寵物用藥追蹤<span class="en">Pet Medication Tracker</span></h4>
+      <p class="why">家有老貓老狗才知道 — 早晚用藥、不同種類，腦容量會爆。讓網頁幫你記。</p>
+
+      <div class="prompt-block detailed">
+        幫我做一個給寵物主人的用藥追蹤網頁，給愛貓人士用。<br />
+        【設定頁】<br />
+        1. 可新增多隻寵物：名字、種類（貓 / 狗 / 兔...）、頭像 emoji（自選）<br />
+        2. 每隻寵物可加多種藥：藥名、頻率（一天 X 次 / 隔 Y 天）、時段（早 / 午 / 晚 / 睡前）、份量<br />
+        【主畫面】<br />
+        3. 預設顯示「今天還沒吃」的所有藥，吃完點打勾<br />
+        4. 打勾自動記錄時間、可看 7 / 30 天歷史<br />
+        5. 接近用藥時間（前 30 分鐘）瀏覽器跳通知 — 用 Notification API，需用戶同意<br />
+        6. 多隻寵物用上方 tab 切換<br />
+        【技術 / 設計】<br />
+        7. 純單檔 HTML，資料存 localStorage<br />
+        8. 設計：圓角卡片、淡綠色為主，按鈕大顆給長輩用<br />
+        9. 寵物頭像用 emoji，每隻可選不同<br />
+        10. 給我一份「醫療紀錄報表」可以印出來給獸醫看
+      </div>
+
+      <div class="expected">
+        <div class="exp-label">你會看到</div>
+        <ul>
+          <li>多寵物切換 tab</li>
+          <li>「今天還沒吃」的清單（吃完打勾）</li>
+          <li>用藥前 30 分鐘跳通知（需同意瀏覽器通知）</li>
+          <li>可印出「過去 30 天用藥報表」給獸醫看</li>
+          <li>學會：Notification API、定時器、複雜資料結構</li>
+        </ul>
+      </div>
+      <p class="for-who"><strong>適合誰：</strong>有老寵物、寵物多病的飼主。也適合改成「家人用藥追蹤」給爸媽用。</p>
+    </article>
+
+    <!-- 09 個人作品集 -->
+    <article class="recipe" data-num="09">
+      <div class="badges">
+        <span class="level">★★ 中等</span>
+        <span class="time">20 分鐘</span>
+        <span>多區塊 + RWD</span>
+      </div>
+      <h4>個人一頁式作品集<span class="en">One-page Portfolio</span></h4>
+      <p class="why">最實用的下一步 — 把你做的東西展示出來，求職、自介、加好友都用得到。</p>
+
+      <div class="prompt-block casual">
+        做一頁式作品集網站，深色底，介紹我自己 + 作品 + 聯絡方式，要看起來不像 AI 做的。
+      </div>
+
+      <div class="prompt-block detailed">
+        幫我做一頁式個人作品集網站。<br />
+        1. 區塊順序：Hero（大標題 + 一句自介）→ About（含一張大頭貼）→ Skills（技能 tag cloud）→ Works（3 欄卡片）→ Contact<br />
+        2. 風格：深色底（#0e0e10）+ 暖米白字 + 一個顯眼重點色（柿橘 #e8623d）<br />
+        3. 字體：英文用 Fraunces 或 Cormorant 襯線字（顯示更精緻）；中文用思源宋體<br />
+        4. Hero 區大標用斜體 italic 重點色<br />
+        5. 滾動時各區塊有淡入動畫（IntersectionObserver）<br />
+        6. RWD：手機 3 欄變 1 欄，標題縮放<br />
+        7. 微互動：卡片 hover 微浮起 + 跟隨滑鼠的光暈<br />
+        8. 內容先放假資料，我之後改<br />
+        9. 不用 React 框架，純 HTML + CSS + Vanilla JS
+      </div>
+
+      <div class="expected">
+        <div class="exp-label">你會看到</div>
+        <ul>
+          <li>5 區塊單頁網站（Hero / About / Skills / Works / Contact）</li>
+          <li>滾動淡入動畫</li>
+          <li>RWD 手機版自動調整</li>
+          <li>可直接 push 到 GitHub Pages 或 Cloudflare Pages，30 分鐘就有公開連結</li>
+        </ul>
+      </div>
+      <p class="for-who"><strong>適合誰：</strong>找工作、自由接案、想留個個人 landing page 的人。</p>
+    </article>
+
+    <!-- 10 Firebase 留言板 -->
+    <article class="recipe" data-num="10">
+      <div class="badges">
+        <span class="level">★★★ 進階</span>
+        <span class="time">30 分鐘</span>
+        <span>後端 + 即時</span>
+      </div>
+      <h4>朋友間的小留言板<span class="en">Friend Guestbook</span></h4>
+      <p class="why">第一次體驗「真正的後端」 — 大家從不同地方看到同一份資料。AI 會帶你開 Firebase 專案。</p>
+
+      <div class="prompt-block detailed">
+        幫我做一個朋友圈共用的留言板。<br />
+        【功能】<br />
+        1. 任何人開頁面就能看到所有留言（不需登入）<br />
+        2. 留言欄位：暱稱、訊息、心情（emoji 5 選 1：😊 🥺 😍 🤔 🎉）<br />
+        3. 即時更新（onSnapshot），有人留言其他人馬上看到<br />
+        4. 按時間倒序、最多 100 筆<br />
+        5. 簡單敏感字過濾（屎、髒話），檢測到顯示「請文明留言」<br />
+        【視覺】<br />
+        6. 像實體便條紙：米黃 / 粉藍 / 薄荷綠卡片隨機輪流<br />
+        7. 每張紙隨機微旋轉 -3° ~ 3°<br />
+        8. 上方有一塊膠帶質感裝飾<br />
+        9. 整體像便條紙公告牆<br />
+        【教學】<br />
+        10. 我完全沒用過 Firebase，請從「申請 Google 帳號 → 建 Firebase 專案 → 啟用 Firestore → 複製 config 給你」一步步教<br />
+        11. 上線後告訴我怎麼部署到 Firebase Hosting，得到一個 yourname.web.app 的網址
+      </div>
+
+      <div class="expected">
+        <div class="exp-label">你會看到</div>
+        <ul>
+          <li>真的有「後端」的網站 — 留言會傳到雲端</li>
+          <li>多裝置即時同步（手機、電腦同時打開都看得到新訊息）</li>
+          <li>便條紙風 UI — 比典型留言板有溫度</li>
+          <li>學會：Firebase Console 操作、Firestore 概念、即時資料庫</li>
+          <li>上線後拿到 <span class="mono">yourname.web.app</span> 的免費網址</li>
+        </ul>
+      </div>
+      <p class="for-who"><strong>適合誰：</strong>已經做完 1-9 任一個、想突破的人。第一次串雲端服務。</p>
+    </article>
+
+    <!-- 11 萬用「先聊聊」 -->
+    <article class="recipe" data-num="11">
+      <div class="badges">
+        <span class="level">Bonus · 元提示</span>
+        <span class="time">當下</span>
+        <span>萬用模板</span>
+      </div>
+      <h4>萬用「先聊聊」開場<span class="en">The "Talk-First" Opener</span></h4>
+      <p class="why">當你還沒想清楚要做什麼時，<strong>先用這個提示詞讓 AI 反問你</strong> — 比直接下單好十倍。這是我這個月最常用的招式。</p>
+
+      <div class="prompt-block detailed">
+        我想做一個關於「[填你想做的主題]」的小工具，但還沒想清楚規格。<br />
+        請<strong>先別寫程式</strong>，先反問我 5 個關鍵問題：<br />
+        1. 誰要用？年齡 / 場景<br />
+        2. 解決什麼具體問題？最痛的那個是什麼？<br />
+        3. 必須有的 3 個功能（MVP）？<br />
+        4. 視覺風格 / 配色 / 我喜歡的網站範例？<br />
+        5. 部署到哪裡？（GitHub Pages? Vercel? Firebase? 還是不知道）<br />
+        我回答完，請給我一份 <strong>「最小可行版本」實作計畫</strong> — 包含檔案結構、預估時間、第一步該寫什麼。<br />
+        計畫我確認 OK，再開始寫程式。
+      </div>
+
+      <div class="expected">
+        <div class="exp-label">為什麼好用</div>
+        <ul>
+          <li>讓 AI 變成你的 PM，逼你把模糊的「我想做⋯」變具體</li>
+          <li>避免 AI 瞎寫一通、跑歪方向</li>
+          <li>強迫你先決定「最簡版」是什麼 — 不會做到一半失焦</li>
+          <li>計畫 OK 才動手，避免改十次 commit 都不滿意</li>
+        </ul>
+      </div>
+      <p class="for-who"><strong>適合誰：</strong>每一次當你說「欸我想做個 OO」但又說不清的時候。當作上面所有 prompt 的「前置動作」。</p>
+    </article>
+
+  </div>
+</section>
+
+<!-- ─────────── ch10: insights ─────────── -->
+<section class="chapter" id="insights">
+  <div class="chapter-head reveal">
+    <div class="chapter-num">10</div>
+    <div>
+      <h2 class="chapter-title">
+        Field Notes<span class="zh">心得：一個月、24 個專案、教我的事</span>
+      </h2>
+    </div>
+    <div class="chapter-marker">
+      178 commits · 13 repos<br />
+      <span>2026/03/12 → 2026/04/27</span>
+    </div>
+  </div>
+
+  <div class="num-strip reveal">
+    <div class="num-cell"><div class="n">24<span class="unit">sites</span></div><div class="l">作品總數</div></div>
+    <div class="num-cell"><div class="n">178<span class="unit">commits</span></div><div class="l">Git 記錄</div></div>
+    <div class="num-cell"><div class="n">46<span class="unit">days</span></div><div class="l">總期程</div></div>
+    <div class="num-cell"><div class="n">9<span class="unit">stacks</span></div><div class="l">不同技術棧</div></div>
+    <div class="num-cell"><div class="n">12<span class="unit">apis</span></div><div class="l">第三方整合</div></div>
+  </div>
+
+  <div class="insights reveal">
+    <aside class="opener">
+      花一個月、做 24 個網站，<br />
+      不是<em>蠻幹</em>，<br />
+      而是把「想做但沒做」的事，<br />
+      終於有工具可以做完。<br />
+      <span class="sig">— Leg, 2026/04/27</span>
+    </aside>
+
+    <div class="insights-body">
+      <p>
+        2026 年 3 月 12 日，我做了健身追蹤的第一個 commit。今天是 4 月 27 日，第 24 個作品上線。中間 46 天，<span class="hl">平均兩天就有一個能跑的網站誕生</span>。聽起來很多，但細看 git log 會發現：產出是<strong>叢集式的</strong> — 4 月初一個爆發、4 月底另一個爆發 — 不是每天平均產出。這跟人一致：靈感來時做很多，沒靈感就沉澱。
+      </p>
+
+      <p>
+        24 個專案橫跨健身、財務、心理、命理、電商、公益、台股、職場寫作。我不是某個領域的專家，<strong>我是個「找問題的人」</strong>。Vibe coding 給了我一個能力 — <span class="hl">把生活裡每個「啊真希望有人做」的時刻，變成自己動手</span>。每個專案都對應一個真實的限制：台灣 27 家銀行的帳單格式各異 → MyFinance；薩提爾諮商太貴 → 薩提爾的房間；家裡甜點店要訂單管理 → 朵菲玩甜點。
+      </p>
+
+      <h3 data-num="01 / Insight">技術棧跟著問題走，不跟著潮流走</h3>
+      <p>
+        看我的作品列表，會發現<strong>沒有「一個我最愛的框架」</strong>。台股看盤要快、要 zero dependency → 純 Canvas + Cloudflare Workers；電商需要後台 → Express + Render；做 AI 的薩提爾室需要狀態 → Next.js + Anthropic + Firebase；個人小工具就是 Vanilla HTML + GitHub Pages。
+      </p>
+      <p>
+        這跟很多新手會卡住的地方相反 — 大家容易先選技術，再找問題。<strong>順序顛倒了。</strong>先看你要解決什麼，再讓 AI 推薦最簡單的方案。AI 反而會幫你避開「過度工程」 — 一個三十行 HTML 就能解決的問題，它不會推你用 React。
+      </p>
+
+      <h3 data-num="02 / Insight">從第一天就「上線」，不要永遠在 localhost</h3>
+      <p>
+        24 個專案裡，有 19 個有公開網址、5 個 WIP。<strong>沒有一個是只在我電腦上跑的。</strong>這不是炫耀 — 而是因為「上線」會逼你面對真實：CORS、API key、響應式、行動裝置、部署設定。每一個都是「locallhost 不會教你的事」。
+      </p>
+      <p>
+        我用了 6 個不同的部署平台：GitHub Pages（9 個）、Firebase（4 個）、Vercel（3 個）、Render（2 個）、Cloudflare Workers（1 個）、Chrome Extension（1 個）。<span class="hl">每個都是 AI 帶我設定的 — 我自己不會記那麼多 CLI 指令。</span>但跑過一次後，下次就快了。
+      </p>
+
+      <h3 data-num="03 / Insight">「複製一份再改」是最被低估的技巧</h3>
+      <p>
+        我桌面有兩個資料夾：<span class="mono">fitness-tracker</span> 跟 <span class="mono">fitness-tracker - 複製</span>。後者就是我直接 ctrl+C ctrl+V 整份複製，然後叫 AI 改成 v2。聽起來很笨，但<strong>這是最安全的實驗方式</strong> — 原版照樣跑，新版隨便玩。
+      </p>
+      <p>
+        Git branch 是同樣概念的「正規版」。但對新手而言，「資料夾複製一份」更直觀、更不會出錯。AI 不會抗議你「沒用 branch」。等到你做了第三個複製，自然會想要 git。
+      </p>
+
+      <h3 data-num="04 / Insight">AI 寫的程式，是「半成品」不是「完成品」</h3>
+      <p>
+        24 個專案裡，<strong>沒有一個</strong>是 AI 第一次寫出來就能用的。我累積 178 個 commit，平均每個有 git 的專案 13 個 — 那 13 次都是「跑了 → 哪裡不對 → 再請 AI 改」。
+      </p>
+      <p>
+        新手最常犯的錯誤：跑一次失敗就放棄，覺得「AI 不行」。<span class="hl">真正的 vibe coding 不是「下指令拿成品」，是「跟 AI 兩個人一起改 13 次」。</span>把錯誤訊息貼回去、把畫面截圖貼回去、把 console 內容貼回去 — 這就是工作流。Claude Code 比 Antigravity 在這件事上更順：因為它能直接讀整個資料夾、自己跑指令。
+      </p>
+
+      <h3 data-num="05 / Insight">三個工具，三種人格</h3>
+      <p>
+        用過三大工具後，我自己的習慣是 — <strong>Antigravity 用來「探索」</strong>（畫面豐富、易看效果，適合腦中還模糊時）；<strong>Claude Code 用來「深耕」</strong>（已經有專案、要做正式產品）；<strong>Codex 用來「平行」</strong>（同時多任務時派多個 agent 處理）。
+      </p>
+      <p>
+        三者不是「選一個」，而是「分時段用」。在 vibe coding 的世界裡，工具便宜、切換成本低 — <span class="hl">同一個專案用兩個工具來回對照，反而會讓你看到 AI 不同的「視角」</span>，找到最好的解法。
+      </p>
+
+      <h3 data-num="Closing">給超級新手的一句話</h3>
+      <p>
+        你不需要先學會什麼。回到家，打開 Antigravity，跟它說「<em>我想做一個 [填你今晚最想做的東西]</em>」。
+        三十分鐘後，你會擁有人生第一個自己做的網站。再三十分鐘後，你會發現第一版有 bug — 然後你會自己學會怎麼修。
+        一個月後，回頭看這份簡報，<strong>你也會有一份自己的 24 件作品清單。</strong>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── ch11: portfolio ─────────── -->
+<section class="chapter" id="works">
+  <div class="chapter-head reveal">
+    <div class="chapter-num">11</div>
+    <div>
+      <h2 class="chapter-title">
+        Portfolio<span class="zh">這個月，我做出的 24 件作品</span>
+      </h2>
+    </div>
+    <div class="chapter-marker">
+      Live · 2026/04<br />
+      <span>24 sites · 1 month</span>
+    </div>
+  </div>
+
+  <div class="filters reveal">
+    <button class="filter-btn active" data-cat="all">All <span class="count">24</span></button>
+    <button class="filter-btn" data-cat="ai">AI 工具 <span class="count">4</span></button>
+    <button class="filter-btn" data-cat="life">生活 / 商務 <span class="count">10</span></button>
+    <button class="filter-btn" data-cat="society">公益 / 社會 <span class="count">2</span></button>
+    <button class="filter-btn" data-cat="mystic">命理 / 紫微 <span class="count">2</span></button>
+    <button class="filter-btn" data-cat="page">提案 / 頁面 <span class="count">1</span></button>
+    <button class="filter-btn" data-cat="wip">開發中 <span class="count">5</span></button>
+  </div>
+
+  <div class="portfolio reveal" id="portfolioGrid">
+
+    <article class="work feat" data-cat="ai">
+      <div class="work-top"><div class="cat">★ Featured · AI 工具</div><div class="status">Live</div></div>
+      <div class="name">薩提爾的房間 <span class="en">Satir Room</span></div>
+      <div class="desc">以薩提爾冰山理論為骨架的 AI 自我覺察對話工具，具備危機關鍵字偵測與速率限制。Next.js + Anthropic + Firebase。</div>
+      <div class="stack"><span>Next.js</span><span>TypeScript</span><span>Anthropic</span><span>Firebase</span></div>
+      <div class="work-foot">
+        <a class="visit" href="https://satir-room.vercel.app" target="_blank" rel="noopener">Visit ↗</a>
+        <span class="repo">Vercel</span>
+      </div>
+    </article>
+
+    <article class="work" data-cat="ai">
+      <div class="work-top"><div class="cat">AI 工具</div><div class="status">Live</div></div>
+      <div class="name">天機 AI 面相 <span class="en">TianJi AI</span></div>
+      <div class="desc">宣稱準確度 99% 的 AI 面相儀表板，整合臉部辨識分析。</div>
+      <div class="stack"><span>HTML</span><span>face-api.js</span></div>
+      <div class="work-foot">
+        <a class="visit" href="https://legstrong77-maker.github.io/tianji-ai-01/" target="_blank" rel="noopener">Visit ↗</a>
+        <span class="repo">GitHub Pages</span>
+      </div>
+    </article>
+
+    <article class="work" data-cat="ai">
+      <div class="work-top"><div class="cat">AI 工具</div><div class="status">Live</div></div>
+      <div class="name">敬啟者 <span class="en">Jing Qi Zhe</span></div>
+      <div class="desc">內嵌 Gmail 側邊欄的台灣職場繁中商務寫作助手，8 組情境 × 4 種語氣一鍵生成。</div>
+      <div class="stack"><span>Manifest V3</span><span>Gemini API</span><span>Chrome Ext</span></div>
+      <div class="work-foot">
+        <a class="visit dim">Chrome Ext</a>
+        <span class="repo">Manifest V3</span>
+      </div>
+    </article>
+
+    <article class="work" data-cat="ai">
+      <div class="work-top"><div class="cat">AI 工具</div><div class="status">Live</div></div>
+      <div class="name">剪筆 JianBi <span class="en">JianBi</span></div>
+      <div class="desc">一鍵把長內容剪成台灣繁中貼文（Threads / X / LINE / IG）。</div>
+      <div class="stack"><span>Next.js</span><span>TypeScript</span><span>Gemini API</span></div>
+      <div class="work-foot">
+        <a class="visit" href="https://jianbi.vercel.app" target="_blank" rel="noopener">Visit ↗</a>
+        <span class="repo">Vercel</span>
+      </div>
+    </article>
+
+    <article class="work feat" data-cat="life">
+      <div class="work-top"><div class="cat">★ Featured · 生活 / 商務</div><div class="status">Live</div></div>
+      <div class="name">六脈 LIUMAI <span class="en">LIUMAI Taiwan Stock AI</span></div>
+      <div class="desc">台股即時看盤 + 六維 AI 分析戰情艙。K 線／五檔／法人／AI 操作訊號，純前端 Canvas 零套件依賴，部署在 Cloudflare Workers。</div>
+      <div class="stack"><span>Vanilla JS</span><span>Canvas</span><span>TWSE MIS</span><span>FinMind</span><span>CF Workers</span></div>
+      <div class="work-foot">
+        <a class="visit" href="https://liumai.legstrong77.workers.dev" target="_blank" rel="noopener">Visit ↗</a>
+        <span class="repo">CF Workers</span>
+      </div>
+    </article>
+
+    <article class="work" data-cat="life">
+      <div class="work-top"><div class="cat">生活 / 商務</div><div class="status">Live</div></div>
+      <div class="name">MyFinance 信用卡帳單 <span class="en">MyFinance</span></div>
+      <div class="desc">聚合台灣 27 家以上銀行 Email 信用卡帳單的<strong>個人</strong>理財系統。讀取 Gmail 信件解析消費，自動分類。</div>
+      <div class="stack"><span>Python</span><span>Firebase</span><span>Gmail API</span></div>
+      <div class="work-foot">
+        <a class="visit dim">Personal use</a>
+        <span class="repo">Firebase</span>
+      </div>
+    </article>
+
+    <article class="work" data-cat="life">
+      <div class="work-top"><div class="cat">生活 / 商務</div><div class="status">Live</div></div>
+      <div class="name">朵菲玩甜點 <span class="en">Duffy Have Fun</span></div>
+      <div class="desc">Next.js + Supabase 打造的小型蛋糕訂購電商，含後台管理。</div>
+      <div class="stack"><span>Next.js</span><span>TypeScript</span><span>Supabase</span><span>Tailwind</span></div>
+      <div class="work-foot">
+        <a class="visit" href="https://duffyhavefun.vercel.app" target="_blank" rel="noopener">Visit ↗</a>
+        <span class="repo">Vercel</span>
+      </div>
+    </article>
+
+    <article class="work" data-cat="life">
+      <div class="work-top"><div class="cat">生活 / 商務</div><div class="status">Live</div></div>
+      <div class="name">雞米花 <span class="en">gimi whisper</span></div>
+      <div class="desc">台南花藝工作室完整電商，前台購物車／結帳／訂單 + 後台 CMS。</div>
+      <div class="stack"><span>Node.js</span><span>Express</span><span>Vanilla JS</span></div>
+      <div class="work-foot">
+        <a class="visit" href="https://gimi-whisper-shop.onrender.com" target="_blank" rel="noopener">Visit ↗</a>
+        <span class="repo">Render</span>
+      </div>
+    </article>
+
+    <article class="work" data-cat="life">
+      <div class="work-top"><div class="cat">生活 / 商務</div><div class="status">Live</div></div>
+      <div class="name">YEBUDA 首爾選品 <span class="en">YEBUDA Seoul Korea</span></div>
+      <div class="desc">正韓東大門服飾選品電商，前台 + 後台 CMS + 儀表板，串綠界金流。</div>
+      <div class="stack"><span>Node.js</span><span>Express</span><span>ECPay</span></div>
+      <div class="work-foot">
+        <a class="visit" href="https://yebuda-shop.onrender.com" target="_blank" rel="noopener">Visit ↗</a>
+        <span class="repo">Render</span>
+      </div>
+    </article>
+
+    <article class="work" data-cat="life">
+      <div class="work-top"><div class="cat">生活 / 商務</div><div class="status">Live</div></div>
+      <div class="name">健身追蹤 <span class="en">Fitness Tracker</span></div>
+      <div class="desc">健身紀錄儀表板，內建抽獎系統，整合 Google Sheets 與 LINE Bot。</div>
+      <div class="stack"><span>HTML</span><span>Apps Script</span><span>LINE Bot</span></div>
+      <div class="work-foot">
+        <a class="visit" href="https://legstrong77-maker.github.io/fitness-tracker/" target="_blank" rel="noopener">Visit ↗</a>
+        <span class="repo">GitHub Pages</span>
+      </div>
+    </article>
+
+    <article class="work" data-cat="life">
+      <div class="work-top"><div class="cat">生活 / 商務</div><div class="status">Live</div></div>
+      <div class="name">健身追蹤 v2 <span class="en">Fitness Tracker (new)</span></div>
+      <div class="desc">健身追蹤改版實驗，介面更精簡。</div>
+      <div class="stack"><span>JavaScript</span></div>
+      <div class="work-foot">
+        <a class="visit" href="https://legstrong77-maker.github.io/fitness-tracker-new/" target="_blank" rel="noopener">Visit ↗</a>
+        <span class="repo">GitHub Pages</span>
+      </div>
+    </article>
+
+    <article class="work" data-cat="life">
+      <div class="work-top"><div class="cat">生活 / 商務</div><div class="status">Live</div></div>
+      <div class="name">SmartLedger 記帳 <span class="en">SmartLedger</span></div>
+      <div class="desc">輕量、無登入、開瀏覽器就能用的記帳工具。</div>
+      <div class="stack"><span>JavaScript</span></div>
+      <div class="work-foot">
+        <a class="visit" href="https://legstrong77-maker.github.io/SmartLedger/" target="_blank" rel="noopener">Visit ↗</a>
+        <span class="repo">GitHub Pages</span>
+      </div>
+    </article>
+
+    <article class="work" data-cat="life">
+      <div class="work-top"><div class="cat">生活 / 商務</div><div class="status">Live</div></div>
+      <div class="name">高雄行程 2026 <span class="en">Kaohsiung Trip</span></div>
+      <div class="desc">2026 高雄行程規劃單頁，含地圖與時段表。</div>
+      <div class="stack"><span>HTML</span></div>
+      <div class="work-foot">
+        <a class="visit" href="https://legstrong77-maker.github.io/kaohsiung-trip-2026/" target="_blank" rel="noopener">Visit ↗</a>
+        <span class="repo">GitHub Pages</span>
+      </div>
+    </article>
+
+    <article class="work" data-cat="life">
+      <div class="work-top"><div class="cat">生活 / 商務</div><div class="status">Live</div></div>
+      <div class="name">限量樣品系統 <span class="en">Limit Sample System</span></div>
+      <div class="desc">限量樣品申請 / 管理介面，內部使用。</div>
+      <div class="stack"><span>JavaScript</span></div>
+      <div class="work-foot">
+        <a class="visit" href="https://legstrong77-maker.github.io/limit-sample-system/" target="_blank" rel="noopener">Visit ↗</a>
+        <span class="repo">GitHub Pages</span>
+      </div>
+    </article>
+
+    <article class="work feat" data-cat="society">
+      <div class="work-top"><div class="cat">★ Featured · 公益 / 社會</div><div class="status">Live</div></div>
+      <div class="name">野海拾誌 <span class="en">WildShore Log</span></div>
+      <div class="desc">台灣 55 個淨灘據點的 ICC 紀錄平台，即時地圖視覺化與廢棄物統計。Vanilla JS + Leaflet + Chart.js + Firestore。</div>
+      <div class="stack"><span>Vanilla JS</span><span>Leaflet</span><span>Chart.js</span><span>Firestore</span></div>
+      <div class="work-foot">
+        <a class="visit" href="https://wildshore-log.web.app" target="_blank" rel="noopener">Visit ↗</a>
+        <span class="repo">non-profit</span>
+      </div>
+    </article>
+
+    <article class="work" data-cat="society">
+      <div class="work-top"><div class="cat">公益 / 社會</div><div class="status">Live</div></div>
+      <div class="name">嘉義博物館尋寶 <span class="en">Chiayi Museum Hunt</span></div>
+      <div class="desc">嘉義博物館互動尋寶網頁，給親子家庭使用。</div>
+      <div class="stack"><span>JavaScript</span></div>
+      <div class="work-foot">
+        <a class="visit" href="https://legstrong77-maker.github.io/chiayi-museum-hunt/" target="_blank" rel="noopener">Visit ↗</a>
+        <span class="repo">GitHub Pages</span>
+      </div>
+    </article>
+
+    <article class="work" data-cat="mystic">
+      <div class="work-top"><div class="cat">命理 / 紫微</div><div class="status">Live</div></div>
+      <div class="name">iztro 紫微斗數 <span class="en">iztro Docs</span></div>
+      <div class="desc">輕量級紫微斗數排盤函式庫的官方文件（多國語系）。</div>
+      <div class="stack"><span>TypeScript</span><span>VitePress</span></div>
+      <div class="work-foot">
+        <a class="visit" href="https://docs.iztro.com" target="_blank" rel="noopener">Visit ↗</a>
+        <span class="repo">docs.iztro.com</span>
+      </div>
+    </article>
+
+    <article class="work" data-cat="mystic">
+      <div class="work-top"><div class="cat">命理 / 紫微</div><div class="status">Live</div></div>
+      <div class="name">Zway 紫微工具 <span class="en">Zway</span></div>
+      <div class="desc">使用 iztro 函式庫製作的紫微斗數排盤工具。</div>
+      <div class="stack"><span>Vite</span><span>iztro</span></div>
+      <div class="work-foot">
+        <a class="visit" href="https://legstrong77-maker.github.io/Zway/" target="_blank" rel="noopener">Visit ↗</a>
+        <span class="repo">GitHub Pages</span>
+      </div>
+    </article>
+
+    <article class="work" data-cat="page">
+      <div class="work-top"><div class="cat">提案 / 頁面</div><div class="status">Live</div></div>
+      <div class="name">荒野高雄 2026 <span class="en">SOW Kaohsiung Proposal</span></div>
+      <div class="desc">整合 2025 愛海、生物多樣性、2026 棲地三份 PPT 的企業永續合作提案網頁。</div>
+      <div class="stack"><span>HTML</span><span>CSS</span></div>
+      <div class="work-foot">
+        <a class="visit" href="https://legstrong77-maker.github.io/wilderness-kaohsiung-2026/" target="_blank" rel="noopener">Visit ↗</a>
+        <span class="repo">GitHub Pages</span>
+      </div>
+    </article>
+
+    <article class="work wip" data-cat="wip">
+      <div class="work-top"><div class="cat">開發中</div><div class="status">WIP</div></div>
+      <div class="name">AI 密室官網 <span class="en">AI Midsir</span></div>
+      <div class="desc">AI 密室官方網站，使用 Astro 框架開發中。</div>
+      <div class="stack"><span>Astro</span><span>JavaScript</span></div>
+      <div class="work-foot">
+        <a class="visit dim">Coming soon</a>
+        <span class="repo">Astro</span>
+      </div>
+    </article>
+
+    <article class="work wip" data-cat="wip">
+      <div class="work-top"><div class="cat">開發中</div><div class="status">WIP</div></div>
+      <div class="name">嘉義博物館官網 <span class="en">Chiayi Museum</span></div>
+      <div class="desc">嘉義博物館官網（Firebase Hosting 建置中）。</div>
+      <div class="stack"><span>Firebase</span></div>
+      <div class="work-foot">
+        <a class="visit dim">Internal preview</a>
+        <span class="repo">Firebase</span>
+      </div>
+    </article>
+
+    <article class="work wip" data-cat="wip">
+      <div class="work-top"><div class="cat">開發中</div><div class="status">WIP</div></div>
+      <div class="name">薩提爾 Firebase 鏡像 <span class="en">Satir Room (FB)</span></div>
+      <div class="desc">薩提爾房間 Firebase 備援版本，主站在 Vercel。</div>
+      <div class="stack"><span>Firebase</span></div>
+      <div class="work-foot">
+        <a class="visit dim">Mirror site</a>
+        <span class="repo">Firebase</span>
+      </div>
+    </article>
+
+    <article class="work wip" data-cat="wip">
+      <div class="work-top"><div class="cat">開發中</div><div class="status">WIP</div></div>
+      <div class="name">表單分析系統 <span class="en">Form Analysis</span></div>
+      <div class="desc">整合 Notion / Google Drive / OpenAI 的表單分析應用，已配置 Vercel。</div>
+      <div class="stack"><span>React</span><span>Express</span><span>MongoDB</span><span>Notion API</span></div>
+      <div class="work-foot">
+        <a class="visit dim">Configuring</a>
+        <span class="repo">private</span>
+      </div>
+    </article>
+
+    <article class="work wip" data-cat="wip">
+      <div class="work-top"><div class="cat">開發中</div><div class="status">WIP</div></div>
+      <div class="name">荒野台南分會官網 <span class="en">SOW Tainan</span></div>
+      <div class="desc">荒野保護協會台南分會官方網站，目前為本地開發階段。</div>
+      <div class="stack"><span>HTML</span><span>Express</span><span>MongoDB</span></div>
+      <div class="work-foot">
+        <a class="visit dim">Local dev</a>
+        <span class="repo">private</span>
+      </div>
+    </article>
+
+  </div>
+
+  <div class="reveal" style="margin-top:64px; text-align:center; padding-top:48px; border-top:1px solid var(--line);">
+    <p class="mono" style="color:var(--mute); font-size:11px; letter-spacing:0.32em; text-transform:uppercase; margin-bottom:14px;">— Above are the public works only —</p>
+    <p style="font-family:'Noto Serif TC',serif; font-weight:300; font-size:16px; color:var(--bone-dim); max-width:48ch; margin:0 auto; line-height:1.7;">
+      實際還有更多<strong style="color:var(--bone)">內部 / 私人</strong>的工具沒有列在這裡。<br />
+      想看更完整的開發過程，現場找 Leg 聊聊。
+    </p>
+  </div>
+</section>
+
+<!-- ─────────── cta ─────────── -->
+<section class="cta" id="now">
+  <div class="reveal">
+    <div class="pre">— Final Chapter ·  Now it's your turn —</div>
+    <h2>下一個 <em>vibe coder,</em><br />就是<em>你</em>。</h2>
+    <p class="sub">
+      你不需要先學會什麼。<br />
+      回到家、打開 Antigravity，跟它聊一個你想做的小東西 — 食譜筆記、家庭相簿、寵物日誌都好。<br />
+      明天上班前，你會擁有人生第一個自己做的網站。
+    </p>
+    <div class="cta-actions">
+      <a class="btn primary" href="https://antigravity.google" target="_blank" rel="noopener">
+        下載 Antigravity <span class="arr">→</span>
+      </a>
+      <a class="btn" href="https://claude.ai" target="_blank" rel="noopener">
+        訂閱 Claude Pro <span class="arr">→</span>
+      </a>
+      <a class="btn" href="https://chatgpt.com/pricing" target="_blank" rel="noopener">
+        ChatGPT + Codex <span class="arr">→</span>
+      </a>
+      <a class="btn" href="#top">
+        回到頂端 <span class="arr">↑</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── footer ─────────── -->
+<footer class="foot">
+  <div class="foot-grid">
+    <div>
+      <div class="foot-mark">Leg / <em>Vibe Coding</em></div>
+      <p class="foot-tag">
+        一個普通人，用一個月的時間，把 24 個想法做成可以上線的網站 — 從 vibe coding 開始。
+      </p>
+    </div>
+    <div>
+      <h5>Tools</h5>
+      <ul>
+        <li><a href="https://antigravity.google" target="_blank" rel="noopener">Antigravity ↗</a></li>
+        <li><a href="https://claude.ai" target="_blank" rel="noopener">Claude Code ↗</a></li>
+        <li><a href="https://chatgpt.com/codex" target="_blank" rel="noopener">OpenAI Codex ↗</a></li>
+        <li><a href="https://code.visualstudio.com" target="_blank" rel="noopener">VS Code ↗</a></li>
+        <li><a href="https://git-scm.com" target="_blank" rel="noopener">Git ↗</a></li>
+      </ul>
+    </div>
+    <div>
+      <h5>Reading</h5>
+      <ul>
+        <li><a href="https://en.wikipedia.org/wiki/Vibe_coding" target="_blank" rel="noopener">Vibe coding · Wikipedia ↗</a></li>
+        <li><a href="https://x.com/karpathy/status/1886192184808149383" target="_blank" rel="noopener">Karpathy 原始推文 ↗</a></li>
+        <li><a href="https://cloud.google.com/discover/what-is-vibe-coding" target="_blank" rel="noopener">Google Cloud · 解析 ↗</a></li>
+        <li><a href="https://www.aiposthub.com/vibe-coding-complete-guide-18-tips/" target="_blank" rel="noopener">18 個血淚經驗 ↗</a></li>
+      </ul>
+    </div>
+    <div>
+      <h5>Sections</h5>
+      <ul>
+        <li><a href="#vibe">什麼是 Vibe Coding</a></li>
+        <li><a href="#tools">三大工具比較</a></li>
+        <li><a href="#recipes">11 個實戰提示詞</a></li>
+        <li><a href="#works">公開作品集</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <div>© 2026 Leg · AI 讀書會 No. 01 · Issue 04 / Vol. 01</div>
+    <div>Made with Antigravity, Claude Code & Codex · For absolute beginners.</div>
+  </div>
+</footer>
+
+<!-- ─────────── side rail ─────────── -->
+<nav class="progress-rail" aria-hidden="true">
+  <a href="#vibe"        data-label="01 · Vibe"></a>
+  <a href="#why"         data-label="02 · Why"></a>
+  <a href="#tools"       data-label="03 · Tools"></a>
+  <a href="#antigravity" data-label="04 · Antigravity"></a>
+  <a href="#claude"      data-label="05 · Claude Code"></a>
+  <a href="#codex"       data-label="06 · Codex"></a>
+  <a href="#extensions"  data-label="07 · Extensions"></a>
+  <a href="#prompts"     data-label="08 · Prompts"></a>
+  <a href="#recipes"     data-label="09 · Try Tonight"></a>
+  <a href="#insights"    data-label="10 · Field Notes"></a>
+  <a href="#works"       data-label="11 · Works"></a>
+  <a href="#now"         data-label="Now"></a>
+</nav>
+
+<script>
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  const buttons = document.querySelectorAll('.filter-btn');
+  const works = document.querySelectorAll('.work');
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const cat = btn.dataset.cat;
+      works.forEach(w => {
+        if (cat === 'all' || w.dataset.cat === cat) {
+          w.hidden = false;
+        } else {
+          w.hidden = true;
+        }
+      });
+    });
+  });
+
+  document.querySelectorAll('.work').forEach(w => {
+    w.addEventListener('mousemove', (e) => {
+      const r = w.getBoundingClientRect();
+      w.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
+      w.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
+    });
+  });
+
+  const sections = ['vibe','why','tools','antigravity','claude','codex','extensions','prompts','recipes','insights','works','now']
+    .map(id => document.getElementById(id));
+  const dots = document.querySelectorAll('.progress-rail a');
+  const railIO = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const id = e.target.id;
+        dots.forEach(d => d.classList.toggle('on', d.getAttribute('href') === '#' + id));
+      }
+    });
+  }, { threshold: 0.4 });
+  sections.forEach(s => s && railIO.observe(s));
+</script>
+
+</body>
+</html>

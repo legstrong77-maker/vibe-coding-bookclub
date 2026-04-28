@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Google Antigravity 入門教材 · 給完全新手的 Vibe Coding 第一課</title>
+<meta name="description" content="為教學設計的 Google Antigravity 入門指南：從安裝、介面、md 檔、Rules、Skills、提示詞，到部署上線，一頁讀完。" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;800&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #fbf8f3;
+    --bg-2: #f3ede2;
+    --ink: #161514;
+    --ink-soft: #3a3833;
+    --mute: #7a7468;
+    --line: #d9d2c4;
+    --line-soft: #e8e2d4;
+    --accent: #e8623d;     /* 反重力橘 */
+    --accent-2: #2e6cdf;   /* Google 藍 */
+    --accent-3: #1f7a4d;   /* 青綠 */
+    --warn: #b85a1c;
+    --code-bg: #1a1916;
+    --code-ink: #f0eadb;
+    --code-mute: #8a8378;
+    --max: 1080px;
+    --gutter: clamp(20px, 4vw, 56px);
+    --serif: "Fraunces", "Noto Serif TC", serif;
+    --sans: "Noto Sans TC", -apple-system, "Segoe UI", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.75;
+    font-size: 16px;
+  }
+  a { color: var(--accent-2); text-decoration: none; border-bottom: 1px dotted currentColor; }
+  a:hover { color: var(--accent); }
+  ::selection { background: var(--accent); color: #fff; }
+
+  /* 紙紋背景 */
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(232,98,61,0.05) 0, transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(46,108,223,0.04) 0, transparent 40%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); position: relative; z-index: 1; }
+
+  /* ========== HERO ========== */
+  header.hero {
+    padding: clamp(48px, 8vw, 96px) 0 clamp(40px, 6vw, 72px);
+    border-bottom: 1px solid var(--line);
+    position: relative;
+  }
+  .kicker {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.18em;
+    color: var(--mute); text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+  .kicker .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+  h1.title {
+    font-family: var(--serif);
+    font-size: clamp(40px, 7vw, 72px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+  h1.title em {
+    font-style: italic;
+    color: var(--accent);
+    font-weight: 400;
+  }
+  .lede {
+    font-size: clamp(17px, 2vw, 20px);
+    color: var(--ink-soft);
+    max-width: 720px;
+    line-height: 1.7;
+  }
+  .meta {
+    margin-top: 36px;
+    display: flex; flex-wrap: wrap; gap: 24px;
+    font-family: var(--mono); font-size: 12px;
+    color: var(--mute);
+    border-top: 1px dashed var(--line);
+    padding-top: 20px;
+  }
+  .meta b { color: var(--ink); font-weight: 600; }
+
+  /* ========== TOC ========== */
+  nav.toc {
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 24px 28px;
+    margin: 48px 0;
+  }
+  nav.toc h3 {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--mute);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  nav.toc ol {
+    list-style: none;
+    counter-reset: toc;
+    columns: 2;
+    column-gap: 32px;
+  }
+  nav.toc li {
+    counter-increment: toc;
+    padding: 4px 0;
+    break-inside: avoid;
+  }
+  nav.toc li::before {
+    content: counter(toc, decimal-leading-zero);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    margin-right: 12px;
+  }
+  nav.toc a {
+    color: var(--ink);
+    border: none;
+    font-size: 14px;
+  }
+  nav.toc a:hover { color: var(--accent); }
+
+  /* ========== SECTIONS ========== */
+  section.chapter {
+    padding: clamp(40px, 6vw, 80px) 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .chapter-head {
+    display: flex; align-items: baseline; gap: 20px;
+    margin-bottom: 32px;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 16px;
+  }
+  .chapter-num {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+  }
+  h2 {
+    font-family: var(--serif);
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+  h3 {
+    font-family: var(--serif);
+    font-size: clamp(20px, 2.2vw, 24px);
+    font-weight: 600;
+    margin: 32px 0 14px;
+    color: var(--ink);
+  }
+  h4 {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 22px 0 10px;
+    color: var(--ink);
+  }
+  p { margin-bottom: 16px; color: var(--ink-soft); }
+  p strong { color: var(--ink); font-weight: 600; }
+  ul, ol { margin: 12px 0 20px 24px; color: var(--ink-soft); }
+  li { margin-bottom: 8px; }
+  li strong { color: var(--ink); }
+
+  /* ========== 重點卡片 ========== */
+  .callout {
+    background: #fff;
+    border-left: 4px solid var(--accent);
+    border-radius: 0 4px 4px 0;
+    padding: 18px 22px;
+    margin: 24px 0;
+    box-shadow: 0 1px 0 var(--line-soft);
+  }
+  .callout.blue { border-left-color: var(--accent-2); }
+  .callout.green { border-left-color: var(--accent-3); }
+  .callout.warn { border-left-color: var(--warn); background: #fdf6ec; }
+  .callout-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: block;
+  }
+  .callout.blue .callout-label { color: var(--accent-2); }
+  .callout.green .callout-label { color: var(--accent-3); }
+  .callout.warn .callout-label { color: var(--warn); }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* ========== 程式碼區塊 ========== */
+  pre, code {
+    font-family: var(--mono);
+    font-size: 13.5px;
+  }
+  pre {
+    background: var(--code-bg);
+    color: var(--code-ink);
+    padding: 20px 24px;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 18px 0;
+    line-height: 1.7;
+    border: 1px solid #2a2825;
+  }
+  pre .cmt { color: var(--code-mute); font-style: italic; }
+  pre .key { color: #f6c177; }
+  pre .str { color: #b5c9a4; }
+  p code, li code {
+    background: var(--bg-2);
+    color: var(--accent);
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-size: 0.88em;
+    border: 1px solid var(--line);
+  }
+
+  /* ========== 步驟區 ========== */
+  .steps {
+    counter-reset: step;
+    margin: 24px 0;
+  }
+  .step {
+    counter-increment: step;
+    position: relative;
+    padding: 18px 24px 18px 64px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    margin-bottom: 12px;
+  }
+  .step::before {
+    content: counter(step);
+    position: absolute;
+    left: 18px; top: 18px;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--bg);
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 14px;
+    display: grid; place-items: center;
+  }
+  .step h4 { margin: 0 0 6px; font-size: 16px; }
+  .step p { margin: 0; font-size: 14.5px; }
+
+  /* ========== 概念對比格 ========== */
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 24px 0;
+  }
+  @media (max-width: 640px) { .compare { grid-template-columns: 1fr; } }
+  .compare > div {
+    background: #fff;
+    border: 1px solid var(--line);
+    padding: 20px 22px;
+    border-radius: 4px;
+  }
+  .compare h4 {
+    margin: 0 0 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed var(--line);
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.05em;
+  }
+  .compare .left h4 { color: var(--accent-2); }
+  .compare .right h4 { color: var(--accent-3); }
+  .compare ul { margin: 0 0 0 18px; font-size: 14.5px; }
+
+  /* ========== 鍵值表 ========== */
+  table.kv {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14.5px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  table.kv th, table.kv td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--line-soft);
+    vertical-align: top;
+  }
+  table.kv th {
+    background: var(--bg-2);
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    color: var(--ink);
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  table.kv tr:last-child td { border-bottom: none; }
+  table.kv code {
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: var(--accent);
+    font-size: 12.5px;
+  }
+
+  /* ========== Footer ========== */
+  footer {
+    padding: 60px 0 80px;
+    background: var(--ink);
+    color: var(--bg-2);
+    margin-top: 40px;
+  }
+  footer .wrap { color: inherit; }
+  footer h3 { color: var(--bg); font-family: var(--serif); font-size: 24px; margin-bottom: 16px; }
+  footer p { color: #a8a094; font-size: 14px; margin-bottom: 12px; }
+  footer a { color: #f6c177; }
+  footer .credits {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #6a6358;
+    letter-spacing: 0.1em;
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid #2a2825;
+  }
+
+  /* ========== 頂部導覽列 ========== */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(251, 248, 243, 0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .topbar-inner {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 14px var(--gutter);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px;
+  }
+  .topbar-mark {
+    font-family: var(--serif);
+    font-weight: 800;
+    font-size: 16px;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .topbar-mark em { color: var(--accent); font-style: italic; font-weight: 400; }
+  .topbar-nav {
+    display: flex; gap: 14px; align-items: center;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.05em;
+  }
+  .topbar-nav a {
+    color: var(--ink-soft);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 3px;
+    transition: all 0.2s;
+  }
+  .topbar-nav a:hover { color: var(--accent); background: var(--bg-2); }
+  .topbar-nav a.cta {
+    background: var(--ink); color: var(--bg);
+    border: 1px solid var(--ink);
+  }
+  .topbar-nav a.cta:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+  @media (max-width: 640px) {
+    .topbar-mark { font-size: 14px; }
+    .topbar-nav { font-size: 11px; gap: 6px; }
+    .topbar-nav a { padding: 5px 8px; }
+  }
+
+  /* 浮動回頂 */
+  .top {
+    position: fixed; right: 24px; bottom: 24px;
+    background: var(--ink); color: var(--bg);
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    border: none; cursor: pointer;
+    font-size: 16px;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 10;
+  }
+  .top.show { opacity: 0.85; }
+  .top:hover { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="index.html" class="topbar-mark" style="border:none;">Leg · <em>Vibe Coding</em> 讀書會</a>
+    <nav class="topbar-nav">
+      <a href="index.html">← 主站</a>
+      <a href="#what">本頁目錄</a>
+      <a href="https://antigravity.google" target="_blank" rel="noopener" class="cta">下載 Antigravity ↗</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker"><span class="dot"></span>AI 讀書會 · 教學講義 · v1.0</div>
+    <h1 class="title">Google <em>Antigravity</em><br/>新手入門完全指南</h1>
+    <p class="lede">
+      一頁讀完：什麼是 Antigravity、為什麼大家在用、怎麼安裝、什麼是 <code>.md</code> 檔、
+      <strong>Rules 跟 Skills 差在哪</strong>、提示詞要怎麼寫、寫完怎麼上線。
+      不講玄的，只講你今天就會用到的。
+    </p>
+    <div class="meta">
+      <span><b>適合對象</b>：第一次接觸 AI 編程的學生</span>
+      <span><b>預期時間</b>：60 分鐘導讀 + 自學</span>
+      <span><b>學習路徑</b>：先安裝 → 補擴充 → 補環境 → 看介面 → 學概念 → 動手做</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <nav class="toc">
+    <h3>目錄 · 學習路線</h3>
+    <ol>
+      <li><a href="#what">什麼是 Antigravity？</a></li>
+      <li><a href="#why">為什麼要用它？</a></li>
+      <li><a href="#install">安裝 Antigravity 本體</a></li>
+      <li><a href="#extensions">必裝擴充套件（中文化、Cockpit、Python）</a></li>
+      <li><a href="#env">安裝開發環境（Git / Node.js / Python）</a></li>
+      <li><a href="#ui">介面三大區：Manager / Editor / Browser</a></li>
+      <li><a href="#md">.md 檔基礎：AI 讀的是 Markdown</a></li>
+      <li><a href="#rules">Rules：給 AI 的「常駐人格」</a></li>
+      <li><a href="#skills">Skills：給 AI 的「專業技能包」</a></li>
+      <li><a href="#vibe">Vibe Coding 實戰流程</a></li>
+      <li><a href="#prompt">提示詞心法（範本）</a></li>
+      <li><a href="#deploy">部署到 GitHub Pages</a></li>
+      <li><a href="#tips">給學生的提醒</a></li>
+    </ol>
+  </nav>
+
+  <!-- 1. 什麼是 -->
+  <section class="chapter" id="what">
+    <div class="chapter-head">
+      <span class="chapter-num">CHAPTER 01</span>
+      <h2>什麼是 Antigravity？</h2>
+    </div>
+    <p><strong>Antigravity 是 Google 推出的 AI 程式碼編輯器</strong>，建立在大家熟悉的 VS Code 之上，但整個工具是 <em>圍繞「AI Agent」設計的</em>——意思是：你不是在打字寫程式，你是在「指揮一個會自己工作的 AI 同事」。</p>
+
+    <div class="callout">
+      <span class="callout-label">一句話定位</span>
+      <p>從「人寫、AI 幫忙」變成「AI 主導、人監督」。你下需求，AI 寫程式、開瀏覽器測試、留下截圖紀錄給你看。</p>
+    </div>
+
+    <p>它跟你聽過的工具差在哪？</p>
+    <table class="kv">
+      <thead><tr><th>工具</th><th>類型</th><th>特色</th></tr></thead>
+      <tbody>
+        <tr><td><b>Cursor</b></td><td>VS Code 改造的 IDE</td><td>AI 寫程式很順，但要付費</td></tr>
+        <tr><td><b>Claude Code</b></td><td>命令列 CLI</td><td>強，但是黑色終端機，新手怕</td></tr>
+        <tr><td><b>Antigravity</b></td><td>完整 IDE + Agent 平台</td><td>登入 Google 帳號就免費用，附帶瀏覽器自動化</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 2. 為什麼 -->
+  <section class="chapter" id="why">
+    <div class="chapter-head">
+      <span class="chapter-num">CHAPTER 02</span>
+      <h2>為什麼要用它？</h2>
+    </div>
+    <ul>
+      <li><strong>免費</strong>：登入 Google 帳號就能用，不用綁信用卡。</li>
+      <li><strong>三大模型可切換</strong>：Gemini 3 Pro、Claude Sonnet/Opus 4.5、GPT 系列。寫程式換 Claude、查資料換 Gemini，<em>同一個 IDE 內切換</em>。</li>
+      <li><strong>會自己開瀏覽器測試</strong>：寫完一個按鈕，它會打開 Chrome、點點看、截圖回報——就像有個耐心的 QA 工程師坐你旁邊。</li>
+      <li><strong>留下「Artifacts」</strong>：每次任務都會生成可審查的紀錄（任務清單、截圖、操作紀錄），你看得懂它做了什麼，不是黑盒子。</li>
+      <li><strong>跨專案平行作業</strong>：Agent Manager 能同時管多個專案，前端、後端、資料庫一起推進。</li>
+    </ul>
+  </section>
+
+  <!-- 3. 安裝 Antigravity -->
+  <section class="chapter" id="install">
+    <div class="chapter-head">
+      <span class="chapter-num">CHAPTER 03</span>
+      <h2>安裝 Antigravity 本體</h2>
+    </div>
+    <p>Windows / Mac / Linux 都能裝。整個流程約 5 分鐘。<strong>這一章只負責把 Antigravity 裝起來能開</strong>，擴充跟開發環境留到第 4、5 章。</p>
+
+    <div class="steps">
+      <div class="step">
+        <h4>下載 Antigravity</h4>
+        <p>到 <a href="https://antigravity.google" target="_blank" rel="noopener">antigravity.google</a> 下載對應作業系統版本，跑安裝程式。</p>
+      </div>
+      <div class="step">
+        <h4>第一次啟動 — 匯入設定</h4>
+        <p>會問你要從零開始、從 VS Code 匯入、還是從 Cursor 匯入。新手選「<b>Start fresh（從零開始）</b>」即可。</p>
+      </div>
+      <div class="step">
+        <h4>選主題與工作模式</h4>
+        <p>主題隨喜（Dark / Light / Tokyo Night / Solarized）。工作模式建議選「<b>Agent-assisted（AI 輔助）</b>」——AI 動手前會問你，比較不會暴衝。</p>
+      </div>
+      <div class="step">
+        <h4>登入 Google 帳號</h4>
+        <p>登入後就能用，免費版額度按週計算，Pro 版每 5 小時刷新。</p>
+      </div>
+      <div class="step">
+        <h4>把專案資料夾拖進來</h4>
+        <p>建立任意空資料夾（例如 <code>my-first-app</code>），拖進 Antigravity，AI 工作區就開好了。</p>
+      </div>
+    </div>
+
+    <div class="callout green">
+      <span class="callout-label">下一步</span>
+      <p>裝好之後 <em>先別急著開始寫程式</em>。下一章先把幾個必裝擴充補上，使用體驗會差很多。</p>
+    </div>
+  </section>
+
+  <!-- 4. 必裝擴充套件 -->
+  <section class="chapter" id="extensions">
+    <div class="chapter-head">
+      <span class="chapter-num">CHAPTER 04</span>
+      <h2>必裝擴充套件</h2>
+    </div>
+    <p>Antigravity 沿用 VS Code 的擴充市集（Extensions）。<strong>左側欄有個方塊堆疊的圖示</strong>就是擴充頁面，搜尋名稱、按 Install 即可。下面是學生第一週就該裝的幾個：</p>
+
+    <h3>① 中文化介面：Chinese (Traditional) Language Pack</h3>
+    <p>把整個 IDE 介面翻成繁體中文，選單、按鈕、提示全部中文化。<em>不影響程式碼</em>，只改 UI 文字。</p>
+    <ul>
+      <li><b>搜尋名稱</b>：<code>Chinese (Traditional)</code></li>
+      <li><b>發布者</b>：Microsoft</li>
+      <li><b>裝完後</b>：<code>Ctrl+Shift+P</code> 打開命令列 → 輸入 <code>Configure Display Language</code> → 選 <code>zh-tw</code> → 重啟</li>
+    </ul>
+
+    <h3>② Antigravity Cockpit（駕駛艙）</h3>
+    <p>用視覺化介面看 AI Agent 在做什麼——目前在跑哪個任務、進度到哪、用了多少 token。<strong>新手最有感的擴充</strong>，因為可以看到 AI 的思路，不再是黑盒子。</p>
+    <ul>
+      <li><b>搜尋名稱</b>：<code>Antigravity Cockpit</code></li>
+      <li><b>用途</b>：監控 Agent 工作狀態、看任務分解、追蹤 token 用量</li>
+    </ul>
+
+    <h3>③ Python（如果你會碰 Python）</h3>
+    <p>寫 Python 必裝。提供語法高亮、自動完成、debug、虛擬環境管理。AI 寫 Python 給你時，這個擴充能即時挑出語法錯誤。</p>
+    <ul>
+      <li><b>搜尋名稱</b>：<code>Python</code></li>
+      <li><b>發布者</b>：Microsoft</li>
+      <li><b>會順便裝</b>：Pylance（語意分析）、Python Debugger</li>
+    </ul>
+
+    <h3>④ Prettier — Code Formatter</h3>
+    <p>存檔自動整理程式碼縮排與格式。<em>記得在 Rules 裡跟 AI 說「Please respect my prettier preferences」</em>，AI 寫的程式碼也會配合。</p>
+    <ul>
+      <li><b>搜尋名稱</b>：<code>Prettier - Code formatter</code></li>
+    </ul>
+
+    <h3>⑤ GitLens</h3>
+    <p>把 Git 歷史視覺化：滑鼠移到任何一行程式，能看到「這行是誰、哪天、為什麼這樣寫」。除錯時超有用。</p>
+
+    <h3>⑥ Live Server</h3>
+    <p>右鍵任何 HTML 檔 → <code>Open with Live Server</code>，會跑一個本機伺服器，存檔自動重新整理。寫純前端時必備。</p>
+
+    <div class="callout">
+      <span class="callout-label">最低限度</span>
+      <p>時間不夠的話，<strong>至少裝前兩個：中文化 + Cockpit</strong>。這兩個直接決定你看不看得懂這個 IDE 在幹嘛。</p>
+    </div>
+  </section>
+
+  <!-- 5. 安裝開發環境 -->
+  <section class="chapter" id="env">
+    <div class="chapter-head">
+      <span class="chapter-num">CHAPTER 05</span>
+      <h2>安裝開發環境</h2>
+    </div>
+    <p>Antigravity 是「<em>給 AI 跟你共同寫程式的編輯器</em>」，但<strong>它本身不會跑你的程式</strong>。要讓寫好的程式真的能執行、能上 GitHub，你電腦得先有這幾個工具：</p>
+
+    <table class="kv">
+      <thead><tr><th>工具</th><th>做什麼</th><th>什麼時候會用到</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>Git</b></td>
+          <td>版本控制 + 上傳 GitHub</td>
+          <td>幾乎每個專案都用，部署一定要</td>
+        </tr>
+        <tr>
+          <td><b>Node.js</b></td>
+          <td>跑前端專案、安裝套件</td>
+          <td>寫網站、React、Vue、Vite</td>
+        </tr>
+        <tr>
+          <td><b>Python</b></td>
+          <td>跑後端 / 自動化 / 資料處理</td>
+          <td>寫爬蟲、AI 模型、機器學習</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Git（必裝）</h3>
+    <ol>
+      <li>到 <a href="https://git-scm.com" target="_blank" rel="noopener">git-scm.com</a> 下載安裝</li>
+      <li>安裝精靈一路下一步即可（Mac 內建）</li>
+      <li>裝完開終端機輸入 <code>git --version</code>，看到版本號就成功</li>
+      <li>第一次設定身份（之後 commit 會帶這個名字）：</li>
+    </ol>
+    <pre>git config --global user.name "你的名字"
+git config --global user.email "你的email@gmail.com"</pre>
+
+    <h3>Node.js（寫網站必裝）</h3>
+    <ol>
+      <li>到 <a href="https://nodejs.org" target="_blank" rel="noopener">nodejs.org</a> 下載 <strong>LTS 版本</strong>（標 Recommended for most users）</li>
+      <li>安裝精靈一路下一步</li>
+      <li>裝完開終端機驗證：</li>
+    </ol>
+    <pre>node --version    <span class="cmt"># 應該看到 v20.x.x 之類</span>
+npm --version     <span class="cmt"># Node 會順便裝 npm（套件管理器）</span></pre>
+
+    <h3>Python（要用再裝）</h3>
+    <ol>
+      <li>到 <a href="https://www.python.org/downloads/" target="_blank" rel="noopener">python.org/downloads</a> 下載最新版（3.12 以上）</li>
+      <li><strong>Windows 安裝時務必勾選「Add Python to PATH」</strong>，否則終端機找不到</li>
+      <li>裝完驗證：</li>
+    </ol>
+    <pre>python --version    <span class="cmt"># Mac/Linux 可能要打 python3</span>
+pip --version       <span class="cmt"># Python 的套件管理器</span></pre>
+
+    <div class="callout warn">
+      <span class="callout-label">Windows 學生最常踩雷</span>
+      <p>Python 安裝忘記勾「Add to PATH」→ 之後每個 <code>python</code> 指令都跑不動。<strong>遇到「'python' 不是內部或外部命令」的錯誤訊息，就是這個原因</strong>。重新安裝、勾起來、重啟終端機。</p>
+    </div>
+
+    <div class="callout blue">
+      <span class="callout-label">不會裝？把這段貼給 AI</span>
+      <p>「我用的是 Windows / Mac，請用最詳細的步驟教我安裝 Git、Node.js、Python，包括下載連結、每一步要點哪個按鈕、裝完怎麼驗證。」AI 會給你完整 SOP。</p>
+    </div>
+  </section>
+
+  <!-- 6. 介面 -->
+  <section class="chapter" id="ui">
+    <div class="chapter-head">
+      <span class="chapter-num">CHAPTER 06</span>
+      <h2>介面三大區</h2>
+    </div>
+    <p>你打開 Antigravity 看到的東西，可以拆成三個視角：</p>
+
+    <h3>① Manager View（指揮台）</h3>
+    <p>同時看多個 Agent 在做什麼。可以開好幾個任務並行——一個 Agent 改前端、另一個 Agent 改後端，互不干擾。</p>
+
+    <h3>② Editor View（編輯器）</h3>
+    <p>跟 VS Code 一模一樣的程式碼編輯器，左邊檔案總管、中間程式碼、右邊 AI 對話。你可以打字寫，但更多時候是「跟 AI 講話」。</p>
+
+    <h3>③ Browser（內建瀏覽器）</h3>
+    <p>裝 Antigravity Chrome 擴充後，AI 可以自己開網頁測試你的成果。<strong>它會自己點按鈕、自己看畫面、自己截圖</strong>——你寫完一個登入頁，它會幫你試帳密能不能登。</p>
+
+    <div class="callout blue">
+      <span class="callout-label">Agent 設定面板（重要！）</span>
+      <p>右上角有個齒輪 Agent Settings，裡面有四件事要顧：</p>
+      <ul style="margin-bottom:0;">
+        <li><b>Customizations</b>：寫 Rules（你給 AI 的常駐指令，下一章詳解）</li>
+        <li><b>Model</b>：切換 Gemini / Claude / GPT</li>
+        <li><b>Mode</b>：複雜任務用 <code>Planning</code>、簡單問題用 <code>Fast</code></li>
+        <li><b>Permissions</b>：終端機指令權限。<em>不要</em>開「Turbo 全自動」，會出事</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 7. md 檔 -->
+  <section class="chapter" id="md">
+    <div class="chapter-head">
+      <span class="chapter-num">CHAPTER 07</span>
+      <h2>先懂 <code>.md</code> 檔：AI 讀的是 Markdown</h2>
+    </div>
+    <p>學 Antigravity 之前，先建立一個觀念：<strong>AI 不是看你的滑鼠點擊，AI 看的是檔案。</strong>而它最愛的檔案格式叫做 <code>.md</code>（Markdown）。</p>
+
+    <h3>什麼是 Markdown？</h3>
+    <p>就是「能寫粗體、標題、清單，但用純文字寫」的格式。副檔名是 <code>.md</code>。下面這行：</p>
+    <pre><span class="cmt"># 我的網站</span>
+這是 **粗體** 文字
+- 第一點
+- 第二點</pre>
+    <p>會被渲染成有大標題、粗體、項目符號的文章。<strong>GitHub、Notion、Discord 都吃這個格式。</strong></p>
+
+    <h3>為什麼 AI 一直要你建 .md 檔？</h3>
+    <p>因為 AI 把你的指令當「文件」來讀。比起一段對話，<em>結構化的 Markdown 檔案讓它更清楚目標跟限制</em>。Antigravity 裡你會碰到三種重要的 .md 檔：</p>
+
+    <table class="kv">
+      <thead><tr><th>檔名</th><th>放哪</th><th>用途</th></tr></thead>
+      <tbody>
+        <tr><td><code>README.md</code></td><td>專案根目錄</td><td>給「人」看的：這個專案是什麼、怎麼跑</td></tr>
+        <tr><td><code>AGENTS.md</code></td><td>專案根目錄</td><td>給「AI」看的：這個專案的規則、慣例、不能碰的東西</td></tr>
+        <tr><td><code>SKILL.md</code></td><td><code>.agent/skills/技能名/</code></td><td>定義一個可重用的「技能包」（後面講）</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout green">
+      <span class="callout-label">教學重點</span>
+      <p>學生第一週只要記住：「<strong>跟 AI 講過的重要規則，要寫成 .md 檔放進專案</strong>」。對話會被忘記，檔案不會。</p>
+    </div>
+  </section>
+
+  <!-- 8. Rules -->
+  <section class="chapter" id="rules">
+    <div class="chapter-head">
+      <span class="chapter-num">CHAPTER 08</span>
+      <h2>Rules：給 AI 的「常駐人格」</h2>
+    </div>
+    <p>Rules 是你寫一次、AI 每次都會讀的指令。位置在 <code>Customizations → Rules</code>。可以設「全域 Global」（所有專案通用）或「專案 Workspace」（只在這個專案生效）。</p>
+
+    <h3>學生用的中文 Rules 範本</h3>
+    <pre><span class="cmt"># 對話偏好</span>
+- 一律用<span class="str"> 繁體中文 </span>回答
+- 直接給程式碼或詳細解釋，不要套高層次的廢話
+- 把使用者當成資深工程師對待
+- 答案先給，理由附在後面
+- 我問什麼回答什麼，不要主動加功能
+
+<span class="cmt"># 程式碼風格</span>
+- 不要寫沒必要的註解
+- 不要為了「未來可能需要」加抽象層
+- 改 bug 不順便重構
+- 變數名稱要有意義，不要 a, b, x, tmp</pre>
+
+    <div class="callout">
+      <span class="callout-label">為什麼這樣寫</span>
+      <p>工程師圈很流行一句話：「<em>DO NOT GIVE ME HIGH LEVEL SHIT</em>」。意思是不要敷衍——叫 AI 直接給東西，不要先講三段廢話再寫一行程式。</p>
+    </div>
+
+    <h3>原版完整 Rules（推薦直接貼用）</h3>
+    <p>下面這份 Rules 是流傳已久的工程師通用版本，<strong>三大 IDE 都吃</strong>——Antigravity、Cursor、Claude Code 通通能用。直接整段貼下去就好：</p>
+
+    <pre>DO NOT GIVE ME HIGH LEVEL SHIT, IF I ASK FOR FIX OR EXPLANATION,
+I WANT ACTUAL CODE OR EXPLANATION!!! I DON'T WANT
+"Here's how you can blablabla"
+
+- Be casual unless otherwise specified
+- Be terse
+- Suggest solutions that I didn't think about—anticipate my needs
+- Treat me as an expert
+- Be accurate and thorough
+- Give the answer immediately. Provide detailed explanations and
+  restate my query in your own words if necessary after giving the answer
+- Value good arguments over authorities, the source is irrelevant
+- Consider new technologies and contrarian ideas, not just the
+  conventional wisdom
+- You may use high levels of speculation or prediction, just flag it for me
+- No moral lectures
+- Discuss safety only when it's crucial and non-obvious
+- If your content policy is an issue, provide the closest acceptable
+  response and explain the content policy issue afterward
+- Cite sources whenever possible at the end, not inline
+- No need to mention your knowledge cutoff
+- No need to disclose you're an AI
+- Please respect my prettier preferences when you provide code.
+- Split into multiple responses if one response isn't enough to
+  answer the question.
+
+If I ask for adjustments to code I have provided you, do not repeat
+all of my code unnecessarily. Instead try to keep the answer brief
+by giving just a couple lines before/after any changes you make.
+Multiple code blocks are ok.
+
+<span class="cmt"># 中文使用者建議再加這行：</span>
+- Always respond in 繁體中文</pre>
+
+    <h3>怎麼加進 Antigravity？</h3>
+    <p>Antigravity 提供 <strong>兩種方式</strong>，挑一個就好（或兩個都用）：</p>
+
+    <div class="compare">
+      <div class="left">
+        <h4>方式 A：UI 設定（最快）</h4>
+        <ul>
+          <li>右上角齒輪 ⚙️ → <code>Customizations</code></li>
+          <li>點 <code>Rules</code> 分頁</li>
+          <li>選 <b>Global Rules</b>（全域）</li>
+          <li>把上面整段貼進去 → 存檔</li>
+        </ul>
+      </div>
+      <div class="right">
+        <h4>方式 B：寫成檔案（推薦）</h4>
+        <ul>
+          <li>專案根目錄建立 <code>AGENTS.md</code></li>
+          <li>把規則貼進去</li>
+          <li>commit 進 git，<em>整個團隊共用</em></li>
+          <li>AI 開啟專案會自動讀取</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>放在哪？三個層級的差別</h3>
+    <table class="kv">
+      <thead><tr><th>層級</th><th>位置</th><th>生效範圍</th><th>適合放</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>Global Rules</b></td>
+          <td>齒輪 → Customizations</td>
+          <td>你電腦上所有專案</td>
+          <td>個人偏好（語氣、語言、口吻）</td>
+        </tr>
+        <tr>
+          <td><b>Workspace Rules</b></td>
+          <td><code>專案/AGENTS.md</code></td>
+          <td>只此專案 + 整個團隊</td>
+          <td>專案規範（用什麼框架、命名規則）</td>
+        </tr>
+        <tr>
+          <td><b>Skills</b></td>
+          <td><code>.agent/skills/</code></td>
+          <td>相關任務時才載入</td>
+          <td>專業流程（部署、API 接法）</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>這份 Rules 的用途是什麼？</h3>
+    <p>把 AI 的「<strong>對話人格</strong>」一次校準到位——它本來預設是「<em>耐心客服</em>」，這份 Rules 把它改造成「<em>資深工程師同事</em>」。</p>
+    <p>逐條翻譯一下用途：</p>
+    <ul>
+      <li><b>Be casual / Be terse</b>：不要講「您好」「希望這對您有幫助」這類客氣話</li>
+      <li><b>Treat me as an expert</b>：不要每次都從「什麼是變數？」開始解釋</li>
+      <li><b>Give the answer immediately</b>：先給答案，再給解釋——不要反過來</li>
+      <li><b>No moral lectures</b>：不要動不動就「這樣做要小心安全...」</li>
+      <li><b>No need to mention knowledge cutoff / disclose you're an AI</b>：省掉「我的訓練資料截止到 2024 年」「身為一個 AI 我...」這種廢話</li>
+      <li><b>Cite sources at the end, not inline</b>：引用放最後，不要在文章中間插一堆 [1][2]</li>
+      <li><b>Don't repeat all of my code</b>：改一行就只給那一行附近，不要把整個檔案再印一次</li>
+    </ul>
+
+    <h3>為什麼要這樣做？（最重要的一段）</h3>
+    <div class="callout warn">
+      <span class="callout-label">三個關鍵理由</span>
+      <ol style="margin-bottom:0;">
+        <li><strong>省 token、省錢、省時間</strong>：AI 預設的客套話跟重複貼程式碼，每次都吃掉一大堆 token。把它關掉，同樣的額度可以撐三倍長的對話。</li>
+        <li><strong>降低決策疲勞</strong>：你問一個 bug，它先給三段「可能的原因有...」，你還要自己挑哪個對。直接叫它<em>給答案</em>，工作節奏立刻變快。</li>
+        <li><strong>校準專業度</strong>：AI 預設的目標客群是「完全新手」。一旦你跟它說「我是 expert」，它的程式碼品質、術語精準度、跟它願意提的進階技巧，全部會升級。</li>
+      </ol>
+    </div>
+
+    <div class="callout green">
+      <span class="callout-label">教學提醒</span>
+      <p>學生第一週請<strong>先用方式 A 貼到 Global Rules</strong>，全部專案立刻受惠。等做第二個專案時再學方式 B，把專案特殊規則寫進 <code>AGENTS.md</code>。<em>不要一次學完所有層級，會混亂。</em></p>
+    </div>
+  </section>
+
+  <!-- 9. Skills -->
+  <section class="chapter" id="skills">
+    <div class="chapter-head">
+      <span class="chapter-num">CHAPTER 09</span>
+      <h2>Skills：給 AI 的「專業技能包」</h2>
+    </div>
+    <p>2026 年 1 月，Antigravity 正式支援 <strong>Agent Skills</strong>——這是這門課最重要的新功能。</p>
+
+    <div class="compare">
+      <div class="left">
+        <h4>Rules（規則）</h4>
+        <ul>
+          <li>每次對話都會讀</li>
+          <li>適合放「人格」「語氣」</li>
+          <li>例：請用繁中、別寫廢話</li>
+        </ul>
+      </div>
+      <div class="right">
+        <h4>Skills（技能）</h4>
+        <ul>
+          <li>只有「相關時」才載入</li>
+          <li>適合放「專業流程」</li>
+          <li>例：怎麼接 Stripe、怎麼寫 SEO meta</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>Skill 的檔案結構（背起來）</h3>
+    <pre>my-project/
+├── .agent/
+│   └── skills/
+│       └── deploy-to-vercel/      <span class="cmt">← 技能名稱（資料夾）</span>
+│           ├── SKILL.md           <span class="cmt">← 必須大寫！</span>
+│           ├── reference.md       <span class="cmt">← 補充資料（可選）</span>
+│           └── scripts/           <span class="cmt">← 腳本（可選）</span>
+└── ...其他專案檔案</pre>
+
+    <h4>兩種放法</h4>
+    <table class="kv">
+      <thead><tr><th>類型</th><th>位置</th><th>適合放什麼</th></tr></thead>
+      <tbody>
+        <tr><td><b>Workspace 專案範圍</b></td><td><code>專案/.agent/skills/</code></td><td>這個專案才用得到的，例如部署腳本、自家框架慣例</td></tr>
+        <tr><td><b>Global 全域</b></td><td><code>~/.gemini/antigravity/skills/</code></td><td>每個專案都會用到的，例如 JSON 美化、SEO 檢查</td></tr>
+      </tbody>
+    </table>
+
+    <h3>SKILL.md 的標準格式</h3>
+    <p>由兩塊組成：上面是 <strong>YAML frontmatter</strong>（給 AI 路由用），下面是 <strong>Markdown 內容</strong>（技能本體）。</p>
+    <pre><span class="key">---</span>
+<span class="key">name:</span> <span class="str">postgres-query</span>
+<span class="key">description:</span> <span class="str">執行唯讀 SQL 查詢到本機 PostgreSQL 資料庫，
+             支援 SELECT 跟 EXPLAIN，禁止 INSERT/UPDATE/DELETE</span>
+<span class="key">---</span>
+
+<span class="cmt"># 目標</span>
+讓使用者用自然語言查 Postgres 資料。
+
+<span class="cmt">## 步驟</span>
+1. 解析使用者意圖
+2. 產生對應的 SELECT 語句
+3. 執行 `psql -c` 並回傳結果
+
+<span class="cmt">## 範例</span>
+使用者：「列出最近 10 個下單的客人」
+產出：`SELECT * FROM orders ORDER BY created_at DESC LIMIT 10;`
+
+<span class="cmt">## 限制</span>
+- 不要執行 DELETE / DROP / TRUNCATE
+- 結果超過 100 列要分頁</pre>
+
+    <div class="callout warn">
+      <span class="callout-label">關鍵：description 寫得好，技能才會被觸發</span>
+      <p><strong>AI 一開始只看到 description</strong>，覺得相關才會把整份 SKILL.md 載入。所以「資料庫工具」這種模糊描述沒用，要寫成「執行唯讀 SQL 查詢到本機 PostgreSQL 資料庫」這種具體句子。</p>
+    </div>
+
+    <div class="callout green">
+      <span class="callout-label">課堂彩蛋</span>
+      <p>Skills 採用的是<strong>跨工具的開放標準</strong>，<em>Claude Code 跟 Antigravity 用同一份格式</em>。你寫好的 SKILL.md 兩邊都能用，可以用 <code>ln -s</code> 做軟連結共用。</p>
+    </div>
+  </section>
+
+  <!-- 10. Vibe Coding -->
+  <section class="chapter" id="vibe">
+    <div class="chapter-head">
+      <span class="chapter-num">CHAPTER 10</span>
+      <h2>Vibe Coding 實戰流程</h2>
+    </div>
+    <p>「Vibe Coding」的核心概念是——<em>跟著感覺走，把想法描述出來，讓 AI 幫你把它變成程式</em>。在 Antigravity 裡，標準流程是這樣的：</p>
+
+    <div class="steps">
+      <div class="step">
+        <h4>挑技術棧</h4>
+        <p>新手推薦的「零成本三件組」：<b>React（前端）+ Google Apps Script（後端）+ Google Sheets（資料庫）</b>。不用買主機、不用綁信用卡。</p>
+      </div>
+      <div class="step">
+        <h4>用 Planning 模式描述需求</h4>
+        <p>切到 Planning 模式，把「做什麼、給誰用、長什麼樣、有哪些頁面、欄位有什麼」一次講清楚。AI 會生出一份任務清單給你看，你 review 後才開始寫。</p>
+      </div>
+      <div class="step">
+        <h4>分階段確認</h4>
+        <p>不要一次讓 AI 寫完所有功能。每完成一塊就跑跑看、檢查截圖（Artifacts），有錯馬上講。</p>
+      </div>
+      <div class="step">
+        <h4>把學到的規則寫進 AGENTS.md / Rules</h4>
+        <p>每次發現「這個 AI 老是寫錯」、「我們專案有特殊規定」，寫成規則存起來。下次它就不會再犯。</p>
+      </div>
+      <div class="step">
+        <h4>部署上線</h4>
+        <p>用 GitHub Pages 免費發布。第 12 章會講。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. 提示詞 -->
+  <section class="chapter" id="prompt">
+    <div class="chapter-head">
+      <span class="chapter-num">CHAPTER 11</span>
+      <h2>提示詞心法（範本）</h2>
+    </div>
+    <p>提示詞最重要的觀念：<strong>不要照抄別人的提示詞，要從你自己的真實需求長出來</strong>。複製貼上學不到東西。但有個結構可以套，先照這個四段式練習：</p>
+
+    <h3>四段式提示詞範本</h3>
+    <pre><span class="cmt"># 1. 角色設定（告訴 AI 它是誰）</span>
+你是一位資深的 React 前端工程師與遊戲設計師。
+
+<span class="cmt"># 2. UI / UX 需求（長什麼樣、用什麼框架）</span>
+- 框架：React Vite
+- 風格：Pixel Art 像素風
+- 圖片：用 DiceBear API 預載 100 張素材
+- 每關有像素風「關主」圖片
+
+<span class="cmt"># 3. 功能需求（操作流程）</span>
+1. 首頁讓使用者輸入 ID 開始遊戲
+2. 透過 Apps Script 從 Google Sheets「題目」工作表
+   隨機抓 N 題（不含解答）
+3. 答完傳結果到 Apps Script 計算，記錄到 Sheets
+
+<span class="cmt"># 4. 資料結構（Sheets 欄位 / .env 變數）</span>
+題目表欄位：題號 / 題目 / A / B / C / D / 解答
+回答表欄位：ID / 闖關次數 / 總分 / 最高分 /
+            第一次通關分數 / 花了幾次通關 / 最近遊玩時間
+
+.env：
+- GOOGLE_APP_SCRIPT_URL：後端網址
+- PASS_THRESHOLD：通過門檻
+- QUESTION_COUNT：每次題數</pre>
+
+    <div class="callout">
+      <span class="callout-label">為什麼這樣寫管用</span>
+      <p>這四段把「AI 是誰、長相、功能、資料」全攤開——AI 不用猜，就能寫出符合期待的程式。<em>沒寫的部分 AI 會自己亂編</em>，所以越精確越好。</p>
+    </div>
+  </section>
+
+  <!-- 12. 部署 -->
+  <section class="chapter" id="deploy">
+    <div class="chapter-head">
+      <span class="chapter-num">CHAPTER 12</span>
+      <h2>部署到 GitHub Pages（免費）</h2>
+    </div>
+    <p>寫好程式不發布，等於沒寫。GitHub Pages 是學生最容易的免費方案。流程如下：</p>
+
+    <h3>部署前的準備</h3>
+    <p>請 AI 幫你建立這幾個檔案：</p>
+
+    <h4>① <code>.gitignore</code> — 不要上傳的東西</h4>
+    <pre>node_modules/   <span class="cmt"># 套件資料夾，幾百 MB</span>
+dist/           <span class="cmt"># 自動產生的編譯檔</span>
+*.log           <span class="cmt"># 日誌</span>
+*.tmp           <span class="cmt"># 暫存檔</span>
+.env            <span class="cmt"># ← 最重要！裡面有密碼，絕對不能上傳</span></pre>
+
+    <h4>② <code>.env.example</code> — 給別人看的範例</h4>
+    <pre>GOOGLE_APP_SCRIPT_URL=你的後端網址
+PASS_THRESHOLD=6
+QUESTION_COUNT=10</pre>
+    <p><em>不寫真實的值</em>，只寫變數名跟說明，讓別人 clone 你的專案時知道要設什麼。</p>
+
+    <h4>③ <code>.github/workflows/deploy.yml</code> — 自動部署</h4>
+    <p>跟 AI 說「請幫我寫一份 GitHub Actions，自動部署到 GitHub Pages，並更新 README.md」即可。</p>
+
+    <h3>實際發布流程</h3>
+    <div class="steps">
+      <div class="step">
+        <h4>左側 Source Control → Initialize Repository</h4>
+        <p>把專案變成 Git 倉庫。</p>
+      </div>
+      <div class="step">
+        <h4>Commit（記錄變更）</h4>
+        <p>AI 會自動幫你寫 commit 訊息，確認後按 commit。</p>
+      </div>
+      <div class="step">
+        <h4>Push（推上 GitHub）</h4>
+        <p>第一次推會問你 repo 名稱，記得選「Public」。</p>
+      </div>
+      <div class="step">
+        <h4>GitHub → Actions 看部署狀態</h4>
+        <p>綠勾勾＝成功；紅叉叉＝失敗，把錯誤訊息複製貼回 Antigravity 給 AI 修。</p>
+      </div>
+      <div class="step">
+        <h4>環境變數設定</h4>
+        <p>GitHub → Settings → Secrets and variables → Actions：<b>Secrets</b> 放密碼類，<b>Variables</b> 放普通變數。設完後到 Actions 重跑一次 deploy。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13. 給學生的提醒 -->
+  <section class="chapter" id="tips">
+    <div class="chapter-head">
+      <span class="chapter-num">CHAPTER 13</span>
+      <h2>給學生的提醒</h2>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-label">最危險的時代</span>
+      <p>過去 AI 寫錯程式，<em>程式跑不動，你就知道它錯了</em>。現在的 AI 會寫出「<strong>看起來能動、但邏輯藏錯</strong>」的程式。沒有前後端基礎知識，你永遠不知道它把你的密碼明文存進資料庫。</p>
+    </div>
+
+    <ul>
+      <li><strong>不要打開 Turbo 全自動</strong>。AI 跑 <code>rm -rf</code> 之前要問你一聲。</li>
+      <li><strong>每寫完一塊就跑一次</strong>。不要累積五個功能才測，bug 會堆成山。</li>
+      <li><strong>看不懂的程式碼，問 AI 解釋</strong>。直接問「這段為什麼這樣寫？有沒有更簡單的版本？」</li>
+      <li><strong>把錯誤完整貼回去</strong>。不要只貼「跑不起來」，貼整段紅字。</li>
+      <li><strong>免費版會遇到 model overloaded</strong>。換個模型、過幾分鐘再試。</li>
+      <li><strong>學的是思維，不是工具</strong>。Antigravity 半年後可能會換版型，但「怎麼描述需求、怎麼除錯、怎麼寫 .md」這套技能會留下來。</li>
+    </ul>
+
+    <div class="callout green">
+      <span class="callout-label">最後一句話</span>
+      <p>不管是程式語言還是工具，本質都是為了解決問題。<strong>AI 是一個好幫手，但他並非萬能</strong>——保持自己的判斷力與行動力，工具會換、思維才是你的。</p>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <h3>讀完了，動手吧。</h3>
+    <p>這份教材是給 AI 讀書會的入門講義。請學員按章節逐步走過——讀完 + 實際安裝 + 跟著做一個小專案，才算真的學會。</p>
+    <p>有任何問題、發現錯誤、或想加新案例，歡迎回報。教材會持續更新。</p>
+    <div class="credits">
+      AI 讀書會 · ANTIGRAVITY 入門教材 · 2026
+    </div>
+  </div>
+</footer>
+
+<button class="top" onclick="window.scrollTo({top:0, behavior:'smooth'})" aria-label="回到頂部">↑</button>
+
+<script>
+  const top = document.querySelector('.top');
+  window.addEventListener('scroll', () => {
+    top.classList.toggle('show', window.scrollY > 600);
+  });
+</script>
+
+</body>
+</html>

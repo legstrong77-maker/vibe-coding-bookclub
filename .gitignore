@@ -1,0 +1,12 @@
+# 未使用的本地圖片資產
+0B7AF9A3-A28F-4FAC-9AD5-DC81F27DD317.jpg
+Gemini_Generated_Image_qylyzsqylyzsqyly.png
+
+# 系統檔
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 編輯器
+.vscode/
+.idea/
