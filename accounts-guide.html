@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>帳號與登入指南 · GitHub、Google Apps Script、AI 編程常用服務 — Vibe Coding 讀書會</title>
+<meta name="description" content="一頁讀完：GitHub 怎麼申請與設定、Google Apps Script 怎麼用、Antigravity / Claude Code 常彈出的登入網站怎麼處理。給完全新手的帳號開通手冊。" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;800&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #fbf8f3;
+    --bg-2: #f3ede2;
+    --ink: #161514;
+    --ink-soft: #3a3833;
+    --mute: #7a7468;
+    --line: #d9d2c4;
+    --line-soft: #e8e2d4;
+    --accent: #2e6cdf;        /* 主色換成 GitHub 藍 */
+    --accent-2: #e8623d;      /* 反重力橘 */
+    --accent-3: #1f7a4d;      /* 青綠 */
+    --accent-4: #8a4dd1;      /* 紫，給 Apps Script 用 */
+    --warn: #b85a1c;
+    --code-bg: #1a1916;
+    --code-ink: #f0eadb;
+    --code-mute: #8a8378;
+    --max: 1080px;
+    --gutter: clamp(20px, 4vw, 56px);
+    --serif: "Fraunces", "Noto Serif TC", serif;
+    --sans: "Noto Sans TC", -apple-system, "Segoe UI", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.75;
+    font-size: 16px;
+  }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted currentColor; }
+  a:hover { color: var(--accent-2); }
+  ::selection { background: var(--accent); color: #fff; }
+
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(46,108,223,0.05) 0, transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(232,98,61,0.04) 0, transparent 40%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); position: relative; z-index: 1; }
+
+  /* ========== HERO ========== */
+  header.hero {
+    padding: clamp(48px, 8vw, 96px) 0 clamp(40px, 6vw, 72px);
+    border-bottom: 1px solid var(--line);
+    position: relative;
+  }
+  .kicker {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.18em;
+    color: var(--mute); text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+  .kicker .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+  h1.title {
+    font-family: var(--serif);
+    font-size: clamp(40px, 7vw, 72px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+  h1.title em {
+    font-style: italic;
+    color: var(--accent);
+    font-weight: 400;
+  }
+  .lede {
+    font-size: clamp(17px, 2vw, 20px);
+    color: var(--ink-soft);
+    max-width: 720px;
+    line-height: 1.7;
+  }
+  .meta {
+    margin-top: 36px;
+    display: flex; flex-wrap: wrap; gap: 24px;
+    font-family: var(--mono); font-size: 12px;
+    color: var(--mute);
+    border-top: 1px dashed var(--line);
+    padding-top: 20px;
+  }
+  .meta b { color: var(--ink); font-weight: 600; }
+
+  /* ========== TOC ========== */
+  nav.toc {
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 24px 28px;
+    margin: 48px 0;
+  }
+  nav.toc h3 {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--mute);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  nav.toc ol {
+    list-style: none;
+    counter-reset: toc;
+    columns: 2;
+    column-gap: 32px;
+  }
+  nav.toc li {
+    counter-increment: toc;
+    padding: 4px 0;
+    break-inside: avoid;
+  }
+  nav.toc li::before {
+    content: counter(toc, decimal-leading-zero);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    margin-right: 12px;
+  }
+  nav.toc a {
+    color: var(--ink);
+    border: none;
+    font-size: 14px;
+  }
+  nav.toc a:hover { color: var(--accent); }
+
+  /* ========== PARTS（三大區） ========== */
+  .part-mark {
+    margin: 80px 0 -20px;
+    padding: 12px 0;
+    border-top: 2px solid var(--ink);
+    border-bottom: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--mute);
+    text-transform: uppercase;
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .part-mark b { color: var(--ink); font-family: var(--serif); font-size: 22px; font-weight: 800; letter-spacing: -0.01em; text-transform: none; }
+
+  /* ========== SECTIONS ========== */
+  section.chapter {
+    padding: clamp(40px, 6vw, 72px) 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .chapter-head {
+    display: flex; align-items: baseline; gap: 20px;
+    margin-bottom: 32px;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 16px;
+  }
+  .chapter-num {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+  }
+  h2 {
+    font-family: var(--serif);
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+  h3 {
+    font-family: var(--serif);
+    font-size: clamp(20px, 2.2vw, 24px);
+    font-weight: 600;
+    margin: 32px 0 14px;
+    color: var(--ink);
+  }
+  h4 {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 22px 0 10px;
+    color: var(--ink);
+  }
+  p { margin-bottom: 16px; color: var(--ink-soft); }
+  p strong { color: var(--ink); font-weight: 600; }
+  ul, ol { margin: 12px 0 20px 24px; color: var(--ink-soft); }
+  li { margin-bottom: 8px; }
+  li strong { color: var(--ink); }
+
+  /* ========== Callouts ========== */
+  .callout {
+    background: #fff;
+    border-left: 4px solid var(--accent);
+    border-radius: 0 4px 4px 0;
+    padding: 18px 22px;
+    margin: 24px 0;
+    box-shadow: 0 1px 0 var(--line-soft);
+  }
+  .callout.orange { border-left-color: var(--accent-2); }
+  .callout.green { border-left-color: var(--accent-3); }
+  .callout.purple { border-left-color: var(--accent-4); }
+  .callout.warn { border-left-color: var(--warn); background: #fdf6ec; }
+  .callout-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: block;
+  }
+  .callout.orange .callout-label { color: var(--accent-2); }
+  .callout.green .callout-label { color: var(--accent-3); }
+  .callout.purple .callout-label { color: var(--accent-4); }
+  .callout.warn .callout-label { color: var(--warn); }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* ========== Code ========== */
+  pre, code {
+    font-family: var(--mono);
+    font-size: 13.5px;
+  }
+  pre {
+    background: var(--code-bg);
+    color: var(--code-ink);
+    padding: 20px 24px;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 18px 0;
+    line-height: 1.7;
+    border: 1px solid #2a2825;
+  }
+  pre .cmt { color: var(--code-mute); font-style: italic; }
+  pre .key { color: #f6c177; }
+  pre .str { color: #b5c9a4; }
+  p code, li code, td code {
+    background: var(--bg-2);
+    color: var(--accent);
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-size: 0.88em;
+    border: 1px solid var(--line);
+  }
+
+  /* ========== Steps ========== */
+  .steps {
+    counter-reset: step;
+    margin: 24px 0;
+  }
+  .step {
+    counter-increment: step;
+    position: relative;
+    padding: 18px 24px 18px 64px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    margin-bottom: 12px;
+  }
+  .step::before {
+    content: counter(step);
+    position: absolute;
+    left: 18px; top: 18px;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--bg);
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 14px;
+    display: grid; place-items: center;
+  }
+  .step h4 { margin: 0 0 6px; font-size: 16px; }
+  .step p { margin: 0; font-size: 14.5px; }
+
+  /* ========== KV table ========== */
+  table.kv {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14.5px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  table.kv th, table.kv td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--line-soft);
+    vertical-align: top;
+  }
+  table.kv th {
+    background: var(--bg-2);
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    color: var(--ink);
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  table.kv tr:last-child td { border-bottom: none; }
+
+  /* ========== Service cards（登入網站總覽） ========== */
+  .service-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin: 28px 0;
+  }
+  .service {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 20px 22px 18px;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .service:hover { transform: translateY(-2px); box-shadow: 0 6px 20px -8px rgba(20,18,15,0.18); }
+  .service-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    color: #fff;
+    background: var(--ink);
+    padding: 3px 8px;
+    border-radius: 3px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+  .service-tag.deploy { background: var(--accent); }
+  .service-tag.ai { background: var(--accent-2); }
+  .service-tag.code { background: var(--accent-3); }
+  .service-tag.data { background: var(--accent-4); }
+  .service h4 {
+    font-family: var(--serif);
+    font-size: 19px;
+    font-weight: 700;
+    margin: 0 0 6px;
+  }
+  .service .url {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--mute);
+    margin-bottom: 10px;
+    word-break: break-all;
+  }
+  .service .url a { color: var(--accent); border: none; }
+  .service p { font-size: 14px; margin-bottom: 8px; line-height: 1.65; }
+  .service .why {
+    font-size: 13px;
+    color: var(--mute);
+    border-top: 1px dashed var(--line);
+    padding-top: 10px;
+    margin-top: 10px;
+  }
+  .service .why b { color: var(--ink); font-weight: 600; }
+
+  /* ========== Resource list ========== */
+  .resource-list {
+    display: grid;
+    gap: 14px;
+    margin: 24px 0;
+  }
+  .resource {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 16px 20px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 14px 18px;
+    align-items: baseline;
+  }
+  .resource .num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    padding-top: 3px;
+  }
+  .resource h4 { font-size: 16px; margin: 0 0 4px; }
+  .resource p { font-size: 13.5px; margin: 0 0 6px; color: var(--ink-soft); }
+  .resource .link {
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  /* ========== Footer ========== */
+  footer {
+    padding: 60px 0 80px;
+    background: var(--ink);
+    color: var(--bg-2);
+    margin-top: 40px;
+  }
+  footer .wrap { color: inherit; }
+  footer h3 { color: var(--bg); font-family: var(--serif); font-size: 24px; margin-bottom: 16px; }
+  footer p { color: #a8a094; font-size: 14px; margin-bottom: 12px; }
+  footer a { color: #f6c177; }
+  footer .credits {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #6a6358;
+    letter-spacing: 0.1em;
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid #2a2825;
+  }
+
+  /* ========== Topbar ========== */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(251, 248, 243, 0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .topbar-inner {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 14px var(--gutter);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px;
+  }
+  .topbar-mark {
+    font-family: var(--serif);
+    font-weight: 800;
+    font-size: 16px;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .topbar-mark em { color: var(--accent); font-style: italic; font-weight: 400; }
+  .topbar-nav {
+    display: flex; gap: 14px; align-items: center;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.05em;
+  }
+  .topbar-nav a {
+    color: var(--ink-soft);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 3px;
+    transition: all 0.2s;
+  }
+  .topbar-nav a:hover { color: var(--accent); background: var(--bg-2); }
+  .topbar-nav a.cta {
+    background: var(--ink); color: var(--bg);
+    border: 1px solid var(--ink);
+  }
+  .topbar-nav a.cta:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+  @media (max-width: 640px) {
+    .topbar-mark { font-size: 14px; }
+    .topbar-nav { font-size: 11px; gap: 6px; }
+    .topbar-nav a { padding: 5px 8px; }
+  }
+
+  .top {
+    position: fixed; right: 24px; bottom: 24px;
+    background: var(--ink); color: var(--bg);
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    border: none; cursor: pointer;
+    font-size: 16px;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 10;
+  }
+  .top.show { opacity: 0.85; }
+  .top:hover { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="index.html" class="topbar-mark" style="border:none;">Leg · <em>Vibe Coding</em> 讀書會</a>
+    <nav class="topbar-nav">
+      <a href="index.html">← 主站</a>
+      <a href="antigravity-guide.html">Antigravity 教材</a>
+      <a href="#toc">本頁目錄</a>
+      <a href="https://github.com/signup" target="_blank" rel="noopener" class="cta">註冊 GitHub ↗</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker"><span class="dot"></span>AI 讀書會 · 帳號開通手冊 · v1.0</div>
+    <h1 class="title">帳號 · 登入 · <em>授權</em><br/>新手不卡關指南</h1>
+    <p class="lede">
+      在跑 Antigravity 或 Claude Code 的時候，常常會跳出一個又一個要你登入的網站——
+      Anthropic、Google Cloud、Vercel、Cloudflare⋯⋯<strong>這頁就是來收尾這個混亂的</strong>。
+      一頁讀完：GitHub 怎麼註冊、Repo 怎麼設、Google Apps Script 怎麼用、
+      還有那些 AI 編程時會跳出的登入網站，每一個是幹嘛的、要不要點下去。
+    </p>
+    <div class="meta">
+      <span><b>適合對象</b>：第一次跑 Vibe Coding 的學生</span>
+      <span><b>預期時間</b>：30 分鐘讀完 + 邊操作邊註冊</span>
+      <span><b>三大主題</b>：GitHub · Apps Script · 登入服務地圖</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <nav class="toc" id="toc">
+    <h3>目錄 · 你會讀到的東西</h3>
+    <ol>
+      <li><a href="#prelude">前情提要：8 個你該先懂的詞</a></li>
+      <li><a href="#gh-what">GitHub 是什麼？為什麼非用不可</a></li>
+      <li><a href="#gh-signup">申請 GitHub 帳號</a></li>
+      <li><a href="#gh-repo">建立第一個 Repository</a></li>
+      <li><a href="#gh-use">GitHub 能拿來做什麼</a></li>
+      <li><a href="#gh-pages">用 GitHub Pages 把網站發佈出去</a></li>
+      <li><a href="#gas-what">Google Apps Script 是什麼</a></li>
+      <li><a href="#gas-start">開啟你的第一個 Apps Script</a></li>
+      <li><a href="#gas-deploy">把腳本變成 Web App / 排程任務</a></li>
+      <li><a href="#login-map">AI 編程常見的登入網站總覽</a></li>
+      <li><a href="#login-deploy">部署平台：Vercel / Cloudflare / Render</a></li>
+      <li><a href="#login-ai">AI 服務商：Anthropic / OpenAI / Google AI</a></li>
+      <li><a href="#login-data">資料庫類：Supabase / Firebase</a></li>
+      <li><a href="#resources">Vibe Coding 學習資源精選</a></li>
+      <li><a href="#tips">給新手的提醒</a></li>
+    </ol>
+  </nav>
+
+  <!-- ============================================================ -->
+  <!-- PART 0 · 前情提要：詞彙先打通                                   -->
+  <!-- ============================================================ -->
+  <div class="part-mark">
+    <span>Part 00</span><b>先把詞彙打通 — 8 個白話解釋</b><span>序章</span>
+  </div>
+
+  <section class="chapter" id="prelude">
+    <div class="chapter-head">
+      <span class="chapter-num">CHAPTER 00</span>
+      <h2>前情提要：你會反覆看到的 8 個詞</h2>
+    </div>
+    <p>讀後面內容之前，先把這幾個字弄白話。<strong>不用背、知道大概意思就好</strong>——AI 跟你討論時、彈窗跟你要授權時，你看得懂在說什麼，就贏了一半。</p>
+
+    <!-- 1 OAuth -->
+    <h3>① OAuth：你按下「使用 Google 登入」時發生了什麼？</h3>
+    <p>OAuth 是「<strong>不用把密碼給對方，也能讓對方幫你做事</strong>」的協議。中文叫「<em>授權</em>」最貼切。</p>
+
+    <div class="callout">
+      <span class="callout-label">飯店保管箱比喻</span>
+      <p>你住飯店，保險箱是 GitHub。Vercel 想幫你拿東西放東西。<br/>
+      <b>笨方法</b>：把保險箱密碼直接給 Vercel（＝把 GitHub 密碼給它）——它從此什麼都能拿。<br/>
+      <b>OAuth 方法</b>：你親自去櫃台，跟櫃台說「發一張只能開我這個保險箱、只能拿這幾樣、過 30 天就失效的鑰匙給 Vercel」。<em>它能做事，但碰不到你的根本密碼，你也能隨時撤銷。</em></p>
+    </div>
+
+    <p>所以你看到「<b>Continue with GitHub</b>」、「<b>Sign in with Google</b>」這種按鈕，<em>後面跑的全部是 OAuth 流程</em>。授權頁列出來的權限（例：「Read your repositories」），就是那張鑰匙能開哪些抽屜——<strong>看清楚再點允許</strong>。</p>
+
+    <!-- 2 API -->
+    <h3>② API：程式之間的「點菜窗口」</h3>
+    <p>API（<em>Application Programming Interface</em>）＝<strong>程式跟程式講話用的菜單</strong>。</p>
+
+    <div class="callout orange">
+      <span class="callout-label">餐廳比喻</span>
+      <p>餐廳廚房 ＝ Anthropic 的 Claude 模型。<br/>
+      你 ＝ 寫程式的人，肚子餓（想用 AI）。<br/>
+      你不能直接衝進廚房叫廚師煮——你看 <b>菜單（API 文件）</b>、<b>填單交給服務生（送 HTTP request）</b>、廚房做好端出來（<b>API response</b>）。<br/>
+      <em>API 就是那張菜單 + 服務生流程</em>。任何「這個程式可以接這個服務」的接法，背後都是 API。</p>
+    </div>
+
+    <!-- 3 Token / Key / Secret -->
+    <h3>③ API Key、Token、Secret —— 三胞胎差在哪？</h3>
+    <p>都是「一串長長的亂碼」，但用途略有不同：</p>
+    <table class="kv">
+      <thead><tr><th>名字</th><th>長相</th><th>用途</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>API Key</b></td>
+          <td><code>sk-ant-api03-xxxxxx...</code></td>
+          <td>給程式用的「身分證 + 帳本」。誰拿到誰花你的錢。一般長期有效。</td>
+        </tr>
+        <tr>
+          <td><b>Token</b></td>
+          <td><code>ghp_xxxxxx...</code></td>
+          <td>OAuth 流程產出的「臨時鑰匙」。常見有效期較短、有指定權限範圍。</td>
+        </tr>
+        <tr>
+          <td><b>Secret</b></td>
+          <td>泛稱</td>
+          <td>「不該外流的東西」的總稱——password / key / token / private key 都算。</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="callout warn">
+      <span class="callout-label">記住這條鐵律</span>
+      <p><strong>Key / Token / Secret 都絕對不能放進前端 JS、不能 push 進 Public Repo、不能貼到聊天群</strong>。它們不是密碼是支票簿。</p>
+    </div>
+
+    <!-- 4 .env -->
+    <h3>④ 環境變數 與 .env 檔</h3>
+    <p>「<strong>不寫進程式碼、但程式跑起來可以讀到</strong>」的設定值。專門用來放 API Key、資料庫密碼這種敏感資料。</p>
+    <pre><span class="cmt"># .env （這個檔案要加進 .gitignore，不能 push 上 GitHub）</span>
+<span class="key">ANTHROPIC_API_KEY</span>=<span class="str">sk-ant-api03-xxxxxxxxxxxx</span>
+<span class="key">DATABASE_URL</span>=<span class="str">postgres://user:pass@host/db</span></pre>
+    <p>程式碼裡只寫 <code>process.env.ANTHROPIC_API_KEY</code>。<em>原始 Key 永遠不出現在 Git 歷史裡</em>。部署到 Vercel / Cloudflare 時，這些變數要在它們後台「Environment Variables」設一次。</p>
+
+    <!-- 5 CLI -->
+    <h3>⑤ CLI / Terminal / Shell：那個黑色畫面是什麼</h3>
+    <p>CLI ＝ Command Line Interface＝「<strong>用打字下指令操作電腦</strong>」。Terminal 是裝它的窗口、Shell 是裡面跑的解譯器（bash / zsh / PowerShell）。三個常被混用，意思差不多。</p>
+    <div class="callout green">
+      <span class="callout-label">為什麼工程師都用它</span>
+      <p>滑鼠按 50 下的事，CLI 一行就完。<b>AI 寫的東西很多時候要你貼進終端機跑</b>——不會也沒關係，AI 會幫你寫好那一行，你複製貼上、按 Enter 就好。</p>
+    </div>
+    <ul>
+      <li><b>Windows</b>：開「PowerShell」或「Windows Terminal」（推薦後者）</li>
+      <li><b>Mac</b>：開「終端機 / Terminal」</li>
+      <li><b>VS Code / Antigravity 內建</b>：<code>Ctrl + `</code>（鍵盤左上那個反引號）就跳出來</li>
+    </ul>
+
+    <!-- 6 localhost -->
+    <h3>⑥ localhost 與 port：3000、5173、8080 都是什麼？</h3>
+    <p>AI 跑你的網站時，常會跟你說「打開 <code>http://localhost:3000</code>」。</p>
+    <ul>
+      <li><strong>localhost</strong> = 你自己的電腦。網址只在你電腦看得到，別人看不到。</li>
+      <li><strong>:3000</strong> = port（埠號）。一台電腦可以同時跑很多服務，<em>用 port 來分</em>——3000 是 Next.js 慣用、5173 是 Vite、8080 是常見後端。</li>
+    </ul>
+    <div class="callout warn">
+      <span class="callout-label">Port already in use 怎麼辦</span>
+      <p>有時 AI 跑網站會跳「<code>EADDRINUSE: port 3000 already in use</code>」，意思是 3000 被別的程式佔了。最快解法：直接告訴 AI「<em>用 3001 跑</em>」，或關掉之前忘了關的視窗。</p>
+    </div>
+
+    <!-- 7 JSON -->
+    <h3>⑦ JSON：AI 跟程式都愛用的格式</h3>
+    <p>JSON 是「<strong>用大括號和方括號寫的資料格式</strong>」。長這樣：</p>
+    <pre>{
+  <span class="key">"name"</span>: <span class="str">"小明"</span>,
+  <span class="key">"age"</span>: 18,
+  <span class="key">"hobbies"</span>: [<span class="str">"vibe coding"</span>, <span class="str">"睡覺"</span>],
+  <span class="key">"isStudent"</span>: true
+}</pre>
+    <p>API 回傳的、設定檔（<code>package.json</code>、<code>tsconfig.json</code>）、AI 跟你討論資料時——<em>幾乎都是 JSON</em>。看到大括號別怕，照念就行：「name 是小明、age 是 18」。</p>
+
+    <!-- 8 HTTP Status -->
+    <h3>⑧ HTTP 狀態碼：那些 200、404、500 的意思</h3>
+    <p>瀏覽器跟伺服器要東西，伺服器會回三位數的「狀態碼」。<em>看開頭數字就知道大方向</em>：</p>
+    <table class="kv">
+      <thead><tr><th>開頭</th><th>意思</th><th>常見</th></tr></thead>
+      <tbody>
+        <tr><td><b>2xx</b></td><td>成功</td><td><code>200 OK</code>（一切正常）、<code>201 Created</code>（建立成功）</td></tr>
+        <tr><td><b>3xx</b></td><td>重新導向</td><td><code>301 / 302</code>（網址搬家了）</td></tr>
+        <tr><td><b>4xx</b></td><td>你（前端 / 客戶端）有問題</td><td><code>401</code>（沒登入）、<code>403</code>（沒權限）、<code>404</code>（找不到）、<code>429</code>（操太兇被限流）</td></tr>
+        <tr><td><b>5xx</b></td><td>伺服器爆了</td><td><code>500</code>（伺服器內部錯誤）、<code>502 / 503</code>（伺服器掛掉或塞車）</td></tr>
+      </tbody>
+    </table>
+    <div class="callout green">
+      <span class="callout-label">Debug 第一招</span>
+      <p>F12 開 DevTools → Network 分頁 → 看每個請求的狀態碼。<b>4 開頭 = 你寫錯了；5 開頭 = 對方掛了</b>。把整段紅字複製貼回 AI，多半幾秒就修好。</p>
+    </div>
+
+    <!-- bonus -->
+    <h3>⑨ Bonus：還有這些詞你會遇到</h3>
+    <ul>
+      <li><strong>repo</strong>：repository 縮寫。一個專案資料夾。</li>
+      <li><strong>commit</strong>：存檔點。每次寫一段就 commit 一次。</li>
+      <li><strong>push / pull</strong>：把本機 commit 推上 GitHub / 把雲端拉下來。</li>
+      <li><strong>branch</strong>：分支。同一個 repo 開不同版本平行做事。</li>
+      <li><strong>merge</strong>：把分支合併回主線。</li>
+      <li><strong>PR（Pull Request）</strong>：「我這個分支寫好了，請審核合併」的請求書。</li>
+      <li><strong>localhost vs production</strong>：本機開發 vs 正式上線。</li>
+      <li><strong>frontend / backend</strong>：使用者看得到的（瀏覽器內）/ 看不到的（伺服器上）。</li>
+      <li><strong>deploy</strong>：把寫好的東西放到網路上讓別人用。</li>
+      <li><strong>build</strong>：把原始碼變成瀏覽器看得懂的最終版本（壓縮、打包）。</li>
+      <li><strong>npm / pnpm / yarn</strong>：JavaScript 的套件管理工具。<code>npm install</code> = 把專案需要的零件下載齊。</li>
+      <li><strong>node_modules / venv</strong>：被下載的零件放在這裡。<em>都很大、都不用 push 上 GitHub</em>。</li>
+    </ul>
+
+    <div class="callout purple">
+      <span class="callout-label">記不住怎麼辦</span>
+      <p>遇到不懂的詞，直接問 AI：「<b>什麼是 OAuth？用一句話、給完全不會程式的人解釋</b>」。AI 對「白話解釋」這件事擅長到變態。<em>不用回頭翻教材，邊做邊問就會了。</em></p>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- PART 1 · GitHub                                                -->
+  <!-- ============================================================ -->
+  <div class="part-mark">
+    <span>Part 01</span><b>GitHub — 你的程式碼會住在這裡</b><span>05 章</span>
+  </div>
+
+  <!-- 1 -->
+  <section class="chapter" id="gh-what">
+    <div class="chapter-head">
+      <span class="chapter-num">CHAPTER 01</span>
+      <h2>GitHub 是什麼？</h2>
+    </div>
+    <p><strong>GitHub 是「給程式碼用的 Google Drive」</strong>——但比 Drive 多了三件事：版本紀錄、跟別人協作、跟一鍵部署。AI 寫好的東西要放到網路上讓人看到，<em>多半都會經過 GitHub</em>。</p>
+
+    <div class="callout">
+      <span class="callout-label">一句話定位</span>
+      <p>GitHub = 程式碼倉庫 + 歷史快照 + 部署起點。沒有 GitHub，AI 替你寫的網站永遠卡在你電腦裡。</p>
+    </div>
+
+    <h3>用了它你就有的三個能力</h3>
+    <ul>
+      <li><strong>版本回溯</strong>：今天改壞了？昨天的版本還在，一鍵還原。</li>
+      <li><strong>多裝置同步</strong>：家裡電腦寫一半，公司電腦接著寫。</li>
+      <li><strong>一鍵上線</strong>：Vercel、Cloudflare Pages、GitHub Pages 都直接讀 GitHub。push 一次，網站自己更新。</li>
+    </ul>
+
+    <div class="callout orange">
+      <span class="callout-label">名詞速查</span>
+      <p><b>Repository（Repo）</b>＝專案資料夾 ｜ <b>Commit</b>＝存檔點 ｜ <b>Push</b>＝把本機改動推上去 ｜ <b>Pull</b>＝把雲端拉下來 ｜ <b>Branch</b>＝平行版本</p>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="chapter" id="gh-signup">
+    <div class="chapter-head">
+      <span class="chapter-num">CHAPTER 02</span>
+      <h2>申請 GitHub 帳號</h2>
+    </div>
+    <p>整個流程約 <b>3 分鐘</b>。免費版就夠你做很多事，<em>學生還能加碼領 Student Pack</em>（後面講）。</p>
+
+    <div class="steps">
+      <div class="step">
+        <h4>打開註冊頁</h4>
+        <p>到 <a href="https://github.com/signup" target="_blank" rel="noopener">github.com/signup</a>。整頁是英文沒關係，按下去就對。</p>
+      </div>
+      <div class="step">
+        <h4>填 Email、密碼、Username</h4>
+        <p><b>Username 想清楚再打</b>——它會變成你的網址：<code>github.com/你的名字</code>，履歷上會貼，全小寫、簡短、別用注音文。</p>
+      </div>
+      <div class="step">
+        <h4>過驗證（拼圖題）</h4>
+        <p>會跳一個小遊戲驗證你不是機器人，照著做。</p>
+      </div>
+      <div class="step">
+        <h4>收信點啟用</h4>
+        <p>沒驗證 Email 不能建 Repo，<b>第一件事就去信箱按啟用連結</b>。</p>
+      </div>
+      <div class="step">
+        <h4>選免費版（Free）</h4>
+        <p>個人練習用 Free 版即可，無限私有 Repo、無限 Public Repo。Pro 版每月 $4，學生可以免費升級。</p>
+      </div>
+      <div class="step">
+        <h4>（學生加碼）申請 GitHub Student Pack</h4>
+        <p>到 <a href="https://education.github.com/pack" target="_blank" rel="noopener">education.github.com/pack</a> 用學校 Email 申請，<b>免費送你 Copilot Pro、Pro 帳號</b>，還有一堆雲端服務點數。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="chapter" id="gh-repo">
+    <div class="chapter-head">
+      <span class="chapter-num">CHAPTER 03</span>
+      <h2>建立第一個 Repository</h2>
+    </div>
+    <p>Repository（簡稱 <code>repo</code>）＝一個專案。每個作品一個 repo，互相獨立。</p>
+
+    <div class="steps">
+      <div class="step">
+        <h4>右上角 ➕ → New repository</h4>
+        <p>登入後在右上角有個小 ➕，下拉選「<b>New repository</b>」。</p>
+      </div>
+      <div class="step">
+        <h4>填 Repository name</h4>
+        <p>用英文、小寫、單字之間用 <code>-</code> 連接。例：<code>my-first-app</code>、<code>satir-room</code>。<em>別用空格、別用中文</em>。</p>
+      </div>
+      <div class="step">
+        <h4>選 Public 或 Private</h4>
+        <p><b>Public</b>＝全世界都看得到（大家用這個）；<b>Private</b>＝只有你看得到。新手選 Public 就好，後面要部署比較順。</p>
+      </div>
+      <div class="step">
+        <h4>勾「Add a README file」</h4>
+        <p>README 是專案的封面說明。勾起來才能直接開始。</p>
+      </div>
+      <div class="step">
+        <h4>.gitignore 跟 License 先跳過</h4>
+        <p>這兩格對新手不重要，留空就好。AI 之後會幫你補。</p>
+      </div>
+      <div class="step">
+        <h4>按 Create repository</h4>
+        <p>建好之後你會看到一個網址 <code>github.com/你的名字/repo名</code>——這就是這個專案的家。</p>
+      </div>
+    </div>
+
+    <div class="callout green">
+      <span class="callout-label">下一步</span>
+      <p>建好 repo 之後，<em>不用自己 git clone</em>。回到 Antigravity 或 Claude Code，跟 AI 說「幫我把這個專案推到我的 GitHub <code>https://github.com/你的名字/repo名</code>」，它會接手剩下的事。</p>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="chapter" id="gh-use">
+    <div class="chapter-head">
+      <span class="chapter-num">CHAPTER 04</span>
+      <h2>GitHub 能拿來做什麼？</h2>
+    </div>
+    <p>除了存程式碼，新手最該知道的有這幾個：</p>
+
+    <table class="kv">
+      <thead><tr><th>功能</th><th>幹嘛用的</th><th>怎麼開</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>Issues</b></td>
+          <td>記錄 bug、待辦、想法。給自己的 TODO 清單</td>
+          <td>repo → Issues → New issue</td>
+        </tr>
+        <tr>
+          <td><b>Actions</b></td>
+          <td>自動化：push 之後自動跑測試、自動部署</td>
+          <td>repo → Actions（多數模板會自動產生）</td>
+        </tr>
+        <tr>
+          <td><b>Pages</b></td>
+          <td>免費把靜態網站發佈出去（下章專講）</td>
+          <td>Settings → Pages</td>
+        </tr>
+        <tr>
+          <td><b>Releases</b></td>
+          <td>正式版發佈點，給別人下載 v1.0、v2.0</td>
+          <td>repo 右側 Releases → Draft new release</td>
+        </tr>
+        <tr>
+          <td><b>Secrets</b></td>
+          <td>放 API Key、密碼，不會被外人看到</td>
+          <td>Settings → Secrets and variables → Actions</td>
+        </tr>
+        <tr>
+          <td><b>Star ⭐</b></td>
+          <td>幫別人專案按讚 / 收藏，自己之後找得到</td>
+          <td>任何 repo 的右上角</td>
+        </tr>
+        <tr>
+          <td><b>Fork</b></td>
+          <td>把別人的專案複製一份到你帳號改</td>
+          <td>任何 repo 的右上角</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout orange">
+      <span class="callout-label">與 AI 工具的關係</span>
+      <p>Antigravity / Claude Code 會幫你做 <b>commit / push / 建 PR</b>，你只要建好 repo、給它網址就好。但 <b>GitHub 上發生的部署失敗（紅叉叉）</b>要自己看 Actions 頁的錯誤訊息，把它複製貼回 AI 說「這段 deploy 失敗了，幫我修」。</p>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="chapter" id="gh-pages">
+    <div class="chapter-head">
+      <span class="chapter-num">CHAPTER 05</span>
+      <h2>用 GitHub Pages 把網站發佈出去</h2>
+    </div>
+    <p>有 <code>index.html</code> 的靜態網站？最快、最免費的部署方式：<strong>GitHub Pages</strong>。<em>主站、Antigravity 教材這頁，就是這樣發佈的。</em></p>
+
+    <div class="steps">
+      <div class="step">
+        <h4>把 index.html push 到 main 分支</h4>
+        <p>repo 根目錄要有 <code>index.html</code>。Antigravity / Claude Code 通常已經幫你 push 好了。</p>
+      </div>
+      <div class="step">
+        <h4>進入 Settings → Pages</h4>
+        <p>在 repo 頁面最右側的 Settings，左欄找「Pages」。</p>
+      </div>
+      <div class="step">
+        <h4>Source 選 Deploy from a branch</h4>
+        <p>Branch 選 <code>main</code>，資料夾選 <code>/ (root)</code>，按 Save。</p>
+      </div>
+      <div class="step">
+        <h4>等 1–2 分鐘</h4>
+        <p>網址會長這樣：<code>https://你的名字.github.io/repo名/</code>。Actions 頁可以看部署進度。</p>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-label">常見坑</span>
+      <p>頁面打開全白？<b>F12 看 Console</b>。最常見是路徑寫死成 <code>/style.css</code>（會找成根目錄），改成 <code>./style.css</code> 或 <code>style.css</code> 就好。把錯誤訊息貼回 AI 它會懂。</p>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- PART 2 · Google Apps Script                                    -->
+  <!-- ============================================================ -->
+  <div class="part-mark">
+    <span>Part 02</span><b>Google Apps Script — 雲端裡的小機器人</b><span>03 章</span>
+  </div>
+
+  <!-- 6 -->
+  <section class="chapter" id="gas-what">
+    <div class="chapter-head">
+      <span class="chapter-num">CHAPTER 06</span>
+      <h2>Google Apps Script 是什麼？</h2>
+    </div>
+    <p><strong>Apps Script 是 Google 內建的 JavaScript 平台</strong>，跑在 Google 的伺服器上，<em>不用安裝、不用買主機</em>。它最強的地方是：<b>跟 Google 全家桶（Sheets / Gmail / Calendar / Drive / Forms）原生整合</b>，幾行 code 就能做出別人要付費才能做的小工具。</p>
+
+    <div class="callout purple">
+      <span class="callout-label">一句話定位</span>
+      <p>「給 Google 文件 / 表單 / Gmail 加魔法的 JavaScript 工具」。學會它你會省下大量 Excel + Outlook 的力氣。</p>
+    </div>
+
+    <h3>新手最常拿來做這些</h3>
+    <ul>
+      <li><strong>表單自動回信</strong>：Google 表單收到回覆 → 自動寄客製 email</li>
+      <li><strong>Google Sheet 自訂函數</strong>：寫一個 <code>=MYTRANSLATE(A1)</code> 在試算表裡用</li>
+      <li><strong>排程任務</strong>：每天早上 8 點抓股價 / 匯率寫進 Sheet</li>
+      <li><strong>把 Sheet 變成 API / Web App</strong>：手機 App 也能拿資料</li>
+      <li><strong>Gmail 批次處理</strong>：自動分類信件、抓附件存 Drive</li>
+    </ul>
+
+    <div class="callout">
+      <span class="callout-label">vs. 寫一般網站</span>
+      <p>寫一般 Web App 你要：買主機、設資料庫、處理登入。Apps Script 把這三件事都包了——<b>使用者本身就用 Google 帳號登入</b>，資料就放在你 Sheet 裡。對「給少數人用的內部工具」來說，是最快的路。</p>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="chapter" id="gas-start">
+    <div class="chapter-head">
+      <span class="chapter-num">CHAPTER 07</span>
+      <h2>開啟你的第一個 Apps Script</h2>
+    </div>
+    <p>不用申請帳號、不用裝軟體。<em>有 Gmail 就有 Apps Script。</em></p>
+
+    <div class="steps">
+      <div class="step">
+        <h4>打開 script.google.com</h4>
+        <p>到 <a href="https://script.google.com" target="_blank" rel="noopener">script.google.com</a>，按「<b>新增專案</b>」（New project）。</p>
+      </div>
+      <div class="step">
+        <h4>命名專案</h4>
+        <p>左上「Untitled project」點一下改名，例如「我的第一個機器人」。</p>
+      </div>
+      <div class="step">
+        <h4>編輯器裡會看到 function myFunction() {}</h4>
+        <p>把整個函式換成下面這段，按一下上方「儲存」（💾 圖示），再按「執行」（▶ Run）。</p>
+      </div>
+      <div class="step">
+        <h4>第一次執行 → 授權</h4>
+        <p>會彈出「需要授權」、「Google 尚未驗證這個應用程式」——<b>不是 Google 警告你危險，是因為這個 script 是你自己寫的、Google 不認識</b>。點「進階」→「前往（你的專案名稱，不安全）」→ 允許。</p>
+      </div>
+      <div class="step">
+        <h4>看執行紀錄</h4>
+        <p>下方「執行紀錄」（Execution log）會印出結果。看到輸出 = 成功。</p>
+      </div>
+    </div>
+
+    <pre><span class="cmt">// 範例：把今天的日期寫進新建的 Sheet</span>
+function myFunction() {
+  const ss = SpreadsheetApp.create(<span class="str">'今日日期 - 由 Apps Script 建立'</span>);
+  const sheet = ss.getActiveSheet();
+  sheet.getRange(<span class="str">'A1'</span>).setValue(<span class="str">'今天是'</span>);
+  sheet.getRange(<span class="str">'B1'</span>).setValue(new Date());
+  Logger.log(<span class="str">'Sheet 網址： '</span> + ss.getUrl());
+}</pre>
+
+    <div class="callout green">
+      <span class="callout-label">用 AI 寫腳本的最快路</span>
+      <p>把你要的事用中文丟給 Claude / Gemini，例如「<b>幫我寫一段 Google Apps Script，每天早上 8 點抓 USD/TWD 匯率寫進這個 Sheet 的 A 欄</b>」，把它生的 code 貼進編輯器、按執行、授權，就有了。</p>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section class="chapter" id="gas-deploy">
+    <div class="chapter-head">
+      <span class="chapter-num">CHAPTER 08</span>
+      <h2>把腳本變成 Web App 或排程任務</h2>
+    </div>
+
+    <h3>方案 A · 每天自動跑（觸發條件 / Triggers）</h3>
+    <p>在 Apps Script 編輯器左側時鐘 ⏰ 圖示「<b>觸發條件</b>」→ 新增觸發條件。選你的函式、來源「時間驅動」、頻率「每天 / 每小時」。完。</p>
+
+    <h3>方案 B · 變成可訪問的網址（Web App）</h3>
+    <div class="steps">
+      <div class="step">
+        <h4>寫 doGet() 或 doPost()</h4>
+        <p>Apps Script 規定：函式名叫 <code>doGet</code> 就會在有人訪問時執行。回傳 <code>HtmlService</code> 或 <code>ContentService</code>。</p>
+      </div>
+      <div class="step">
+        <h4>右上角「部署」→「新增部署作業」</h4>
+        <p>類型選「<b>Web 應用程式</b>」，執行身分選你自己，存取權「<b>所有人</b>」（如果要給別人用）。</p>
+      </div>
+      <div class="step">
+        <h4>第一次部署再授權一次</h4>
+        <p>因為要「以你身分執行」，Google 會再要你授權一次，照流程允許。</p>
+      </div>
+      <div class="step">
+        <h4>拿到網址</h4>
+        <p>會給你一條 <code>https://script.google.com/macros/s/.../exec</code>。任何人打開這條網址 = 觸發你的 doGet。</p>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-label">改完 code 要「重新部署」</span>
+      <p>每次改 code，<b>原本那條 URL 不會自動更新</b>。要回去「部署」→「管理部署」→ 改一個版本號重新部署，URL 才會反映新版。或者直接用「測試部署」拿臨時網址。</p>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- PART 3 · 登入網站地圖                                          -->
+  <!-- ============================================================ -->
+  <div class="part-mark">
+    <span>Part 03</span><b>跑 AI 編程時跳出的登入網站，到底是誰？</b><span>05 章</span>
+  </div>
+
+  <!-- 9 -->
+  <section class="chapter" id="login-map">
+    <div class="chapter-head">
+      <span class="chapter-num">CHAPTER 09</span>
+      <h2>登入網站總覽：跳出來的時候你該怎麼辦</h2>
+    </div>
+    <p>跑 Antigravity 或 Claude Code 的時候，瀏覽器常常自動彈出一個又一個要登入、要授權的頁面。<strong>不是病毒</strong>，是這些工具要代你去操作各種服務，第一次都得拿到你的同意。下面這張表是你會遇到的全部。</p>
+
+    <table class="kv">
+      <thead><tr><th>什麼時候會跳</th><th>是哪個服務</th><th>幹嘛用的</th><th>該不該點</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>第一次開 Antigravity</td>
+          <td><b>Google 帳號</b></td>
+          <td>登入 Antigravity 本體 + 用 Gemini 模型</td>
+          <td>該。沒登入不能用</td>
+        </tr>
+        <tr>
+          <td>第一次跑 Claude Code</td>
+          <td><b>Anthropic / Claude.ai</b></td>
+          <td>用你的 Claude Pro 額度跑 Claude Code</td>
+          <td>該（有訂閱用這個比較划算）</td>
+        </tr>
+        <tr>
+          <td>AI 要 push 到 GitHub</td>
+          <td><b>GitHub OAuth</b></td>
+          <td>授權它幫你 commit / push</td>
+          <td>該</td>
+        </tr>
+        <tr>
+          <td>AI 要部署到 Vercel</td>
+          <td><b>Vercel</b></td>
+          <td>把 GitHub repo 接上 Vercel 自動部署</td>
+          <td>看你要不要部署</td>
+        </tr>
+        <tr>
+          <td>AI 要部署到 Cloudflare</td>
+          <td><b>Cloudflare</b></td>
+          <td>用 Cloudflare Pages / Workers 部署</td>
+          <td>看你要不要部署</td>
+        </tr>
+        <tr>
+          <td>程式裡要呼叫 OpenAI API</td>
+          <td><b>OpenAI Platform</b></td>
+          <td>拿 API Key 給程式用</td>
+          <td>看你的程式要不要</td>
+        </tr>
+        <tr>
+          <td>程式裡要呼叫 Claude API</td>
+          <td><b>Anthropic Console</b></td>
+          <td>拿 API Key 給程式用（跟登入 Claude Code 不同）</td>
+          <td>看你的程式要不要</td>
+        </tr>
+        <tr>
+          <td>程式裡要呼叫 Gemini API</td>
+          <td><b>Google AI Studio</b></td>
+          <td>拿 Gemini API Key</td>
+          <td>看你的程式要不要</td>
+        </tr>
+        <tr>
+          <td>程式要連資料庫</td>
+          <td><b>Supabase / Firebase</b></td>
+          <td>建立雲端資料庫、登入系統</td>
+          <td>有用到資料才需要</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <span class="callout-label">看到 OAuth 授權頁的判斷原則</span>
+      <p><b>三個確認</b>：① 網址是不是 <code>github.com</code> / <code>vercel.com</code> 等正牌網域（不是 <code>github-login.xxx.fake</code>）② 要授權的權限是不是合理（例如要部署、它說要讀你的 repo，合理）③ 是不是<b>你剛剛在 IDE 裡按下去的動作</b>觸發的（不是莫名其妙跳出來）。三個都對 = 點允許。</p>
+    </div>
+  </section>
+
+  <!-- 10 部署 -->
+  <section class="chapter" id="login-deploy">
+    <div class="chapter-head">
+      <span class="chapter-num">CHAPTER 10</span>
+      <h2>部署平台：Vercel / Cloudflare / Render</h2>
+    </div>
+    <p>「寫好的網站怎麼讓別人用？」就靠這幾家。<strong>三家都有免費方案</strong>，註冊都用 GitHub OAuth 一鍵搞定。</p>
+
+    <div class="service-grid">
+
+      <div class="service">
+        <span class="service-tag deploy">部署</span>
+        <h4>Vercel</h4>
+        <p class="url"><a href="https://vercel.com/signup" target="_blank" rel="noopener">vercel.com/signup</a></p>
+        <p>對 <b>Next.js / React / Vue</b> 最友善。push 一次 GitHub，網站自動更新。免費版速度快、額度給得很慷慨。<em>主站作品集裡的 Satir Room、撿筆，就是放在 Vercel。</em></p>
+        <p class="why"><b>怎麼申請</b>：點 Continue with GitHub → 授權 → 選 repo → 一鍵 Deploy。整個流程約 2 分鐘。</p>
+      </div>
+
+      <div class="service">
+        <span class="service-tag deploy">部署</span>
+        <h4>Cloudflare（Pages / Workers）</h4>
+        <p class="url"><a href="https://dash.cloudflare.com/sign-up" target="_blank" rel="noopener">dash.cloudflare.com/sign-up</a></p>
+        <p>免費版<b>流量無上限</b>是最大賣點，全球 CDN 速度也快。Pages 放靜態網站，Workers 跑後端 API。<em>主站作品集的「流麥」就是 Cloudflare Workers。</em></p>
+        <p class="why"><b>怎麼申請</b>：Email 註冊 → 連 GitHub → 選 repo → Build。新手最容易搞錯的是 Build command，問 AI 即可。</p>
+      </div>
+
+      <div class="service">
+        <span class="service-tag deploy">部署</span>
+        <h4>Render</h4>
+        <p class="url"><a href="https://render.com" target="_blank" rel="noopener">render.com</a></p>
+        <p>跑 <b>Python / Node 後端、長時間運作的服務</b>最方便。免費版會「冷啟動」（沒人用就睡著、第一次喚醒慢 30 秒）。<em>主站的「Gimi 商店」、「夜不答商店」就在這。</em></p>
+        <p class="why"><b>怎麼申請</b>：用 GitHub OAuth → New Web Service → 選 repo → 它自動偵測語言。</p>
+      </div>
+
+      <div class="service">
+        <span class="service-tag deploy">部署</span>
+        <h4>GitHub Pages</h4>
+        <p class="url"><a href="https://pages.github.com" target="_blank" rel="noopener">pages.github.com</a></p>
+        <p>最簡單。<b>純靜態 HTML / CSS / JS 才能用</b>，不能跑後端。但你已經有 GitHub 帳號了 = 不用再開新帳號。</p>
+        <p class="why"><b>怎麼申請</b>：不用申請。在任何 repo 開 Settings → Pages → Save 即可。</p>
+      </div>
+
+    </div>
+
+    <div class="callout green">
+      <span class="callout-label">怎麼選</span>
+      <p><b>純前端網站</b> → GitHub Pages 或 Cloudflare Pages（流量無限） ｜ <b>Next.js / React 全端</b> → Vercel ｜ <b>Python 後端 / Discord bot</b> → Render ｜ <b>API 邊緣函式</b> → Cloudflare Workers。</p>
+    </div>
+  </section>
+
+  <!-- 11 AI -->
+  <section class="chapter" id="login-ai">
+    <div class="chapter-head">
+      <span class="chapter-num">CHAPTER 11</span>
+      <h2>AI 服務商：拿 API Key 的地方</h2>
+    </div>
+    <p>當 AI 寫的程式裡有「呼叫 ChatGPT / Claude / Gemini」這種功能時，<strong>程式本身需要 API Key 才能跟 AI 說話</strong>——這跟你登入 IDE 是兩回事。下面是三大家的 Key 在哪裡拿。</p>
+
+    <div class="service-grid">
+
+      <div class="service">
+        <span class="service-tag ai">AI</span>
+        <h4>Anthropic Console（Claude API）</h4>
+        <p class="url"><a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a></p>
+        <p>給程式用 Claude 模型。註冊後左欄 <b>API Keys → Create Key</b>，<em>跳出來的 Key 只顯示一次，立刻複製存好</em>。新帳號通常有 $5 試用金。</p>
+        <p class="why"><b>跟 Claude.ai 不同</b>：Claude.ai 是聊天網站，這個是給「程式」用的後台。兩邊登入是分開的。</p>
+      </div>
+
+      <div class="service">
+        <span class="service-tag ai">AI</span>
+        <h4>OpenAI Platform（ChatGPT / Codex API）</h4>
+        <p class="url"><a href="https://platform.openai.com" target="_blank" rel="noopener">platform.openai.com</a></p>
+        <p>給程式用 GPT-4 / GPT-5 / Codex。<b>API Keys → Create new secret key</b>。<em>同樣只顯示一次</em>。要先在 Billing 加值至少 $5 才能呼叫 API。</p>
+        <p class="why"><b>跟 ChatGPT 訂閱不同</b>：ChatGPT Plus（$20/月）跟 API 額度是兩個獨立帳本，不互通。</p>
+      </div>
+
+      <div class="service">
+        <span class="service-tag ai">AI</span>
+        <h4>Google AI Studio（Gemini API）</h4>
+        <p class="url"><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a></p>
+        <p>給程式用 Gemini。<b>三家裡面免費額度最大方</b>——個人試玩免費額度足夠。Google 帳號登入 → Get API Key → 複製。</p>
+        <p class="why"><b>vs. Vertex AI</b>：Vertex 是企業級正式環境，要綁卡、設專案，新手用 AI Studio 就好。</p>
+      </div>
+
+      <div class="service">
+        <span class="service-tag ai">AI</span>
+        <h4>OpenRouter（一個 Key 用多家）</h4>
+        <p class="url"><a href="https://openrouter.ai" target="_blank" rel="noopener">openrouter.ai</a></p>
+        <p>進階選項：拿一支 Key，可以呼叫 Claude、GPT、Gemini、開源模型。<em>價格通常比官方便宜或一樣</em>，新手懶得管多家帳號的話很實用。</p>
+        <p class="why"><b>注意</b>：你買的不是訂閱，是預付額度（pay as you go）。</p>
+      </div>
+
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-label">API Key 不是密碼，是支票簿</span>
+      <p>API Key 一旦外流，<b>有人能用你的錢呼叫模型</b>，幾小時跑掉幾百美金的案例都有。① 不要寫死在前端 JS 裡（會被別人 F12 抓到） ② 不要 push 進 Public GitHub repo（用 <code>.env</code> 存、加進 <code>.gitignore</code>） ③ 不小心外流立刻去後台 Revoke Key 再生新的。</p>
+    </div>
+  </section>
+
+  <!-- 12 資料庫 -->
+  <section class="chapter" id="login-data">
+    <div class="chapter-head">
+      <span class="chapter-num">CHAPTER 12</span>
+      <h2>資料庫類：要存資料的時候</h2>
+    </div>
+    <p>單純展示型網站不用資料庫；<strong>要存使用者、訂單、留言</strong>就需要。新手最常碰到的兩家：</p>
+
+    <div class="service-grid">
+
+      <div class="service">
+        <span class="service-tag data">資料</span>
+        <h4>Supabase</h4>
+        <p class="url"><a href="https://supabase.com" target="_blank" rel="noopener">supabase.com</a></p>
+        <p>開源版的 Firebase。<b>PostgreSQL 資料庫 + 登入 + 檔案儲存</b>都有。免費版夠個人專案用很久。介面像 Excel，不用寫 SQL 也能用。</p>
+        <p class="why"><b>什麼時候用</b>：要使用者登入、要存留言 / 訂單 / 商品資料。</p>
+      </div>
+
+      <div class="service">
+        <span class="service-tag data">資料</span>
+        <h4>Firebase</h4>
+        <p class="url"><a href="https://firebase.google.com" target="_blank" rel="noopener">firebase.google.com</a></p>
+        <p>Google 家的方案。<b>Firestore 即時資料庫 + Auth + Hosting</b>。生態系成熟、教學最多，但超過免費額度的計價要小心看。</p>
+        <p class="why"><b>什麼時候用</b>：跟 Supabase 類似，但你已經習慣 Google 環境的話更順。</p>
+      </div>
+
+      <div class="service">
+        <span class="service-tag code">後端</span>
+        <h4>Neon / Turso（SQL 雲端）</h4>
+        <p class="url"><a href="https://neon.tech" target="_blank" rel="noopener">neon.tech</a> · <a href="https://turso.tech" target="_blank" rel="noopener">turso.tech</a></p>
+        <p>純資料庫，無附加功能。<b>Neon = Postgres、Turso = SQLite</b>。AI 寫的後端比較喜歡 Neon，部署到 Vercel 很順。</p>
+        <p class="why"><b>什麼時候用</b>：你的程式只缺一個 DB，不需要 Auth 和 Storage。</p>
+      </div>
+
+      <div class="service">
+        <span class="service-tag code">後端</span>
+        <h4>Upstash（Redis / Kafka）</h4>
+        <p class="url"><a href="https://upstash.com" target="_blank" rel="noopener">upstash.com</a></p>
+        <p>輕量快取與訊息佇列，<b>用按請求次數計費</b>，不用就不收錢。AI 寫的「每分鐘最多三次」這種限流，常用它。</p>
+        <p class="why"><b>什麼時候用</b>：rate limiting、暫存、排隊任務。</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- PART 4 · 學習資源                                              -->
+  <!-- ============================================================ -->
+  <div class="part-mark">
+    <span>Part 04</span><b>學習資源 + 給新手的提醒</b><span>02 章</span>
+  </div>
+
+  <!-- 13 -->
+  <section class="chapter" id="resources">
+    <div class="chapter-head">
+      <span class="chapter-num">CHAPTER 13</span>
+      <h2>Vibe Coding 學習資源精選</h2>
+    </div>
+    <p>下面這幾份是 2026 年中文圈裡最值得看的入門資源，從零基礎到進階都有。<em>讀順序：頭兩個免費、講得最白；其他按興趣選讀。</em></p>
+
+    <div class="resource-list">
+
+      <div class="resource">
+        <span class="num">01</span>
+        <div>
+          <h4>Vibe-Vibe ｜ 全民 AI 學習第一課</h4>
+          <p>Datawhalechina 出的開源教程，從覺醒、心法、技法、實戰四章帶你從零到全端。系統化、最完整。</p>
+          <p class="link">→ <a href="https://www.vibevibe.cn" target="_blank" rel="noopener">vibevibe.cn</a> ｜ <a href="https://github.com/datawhalechina/vibe-vibe" target="_blank" rel="noopener">GitHub repo</a></p>
+        </div>
+      </div>
+
+      <div class="resource">
+        <span class="num">02</span>
+        <div>
+          <h4>Easy-Vibe ｜ 你的第一堂現代編程課</h4>
+          <p>同樣是 Datawhalechina，更偏初學者友善——分步驟視覺教程、沉浸式模擬編程、終點是做出自己的 SaaS。</p>
+          <p class="link">→ <a href="https://github.com/datawhalechina/easy-vibe" target="_blank" rel="noopener">github.com/datawhalechina/easy-vibe</a></p>
+        </div>
+      </div>
+
+      <div class="resource">
+        <span class="num">03</span>
+        <div>
+          <h4>Vibe Coding 指南（tukuaiai）</h4>
+          <p>專注在 <b>Prompt 提示詞、Skill 技能庫、Workflow 工作流</b>三件事的指南。已經會玩、想精進工作流的看這份。</p>
+          <p class="link">→ <a href="https://github.com/tukuaiai/vibe-coding-cn" target="_blank" rel="noopener">github.com/tukuaiai/vibe-coding-cn</a></p>
+        </div>
+      </div>
+
+      <div class="resource">
+        <span class="num">04</span>
+        <div>
+          <h4>HDcourse · Vibe Coding 是什麼？2026 完整教學</h4>
+          <p>一篇就把工具比較、下載、定價、使用流程講完的中文總覽。沒時間讀大教程的人從這篇起。</p>
+          <p class="link">→ <a href="https://www.hdcourse.com/ai/vibe-coding/" target="_blank" rel="noopener">hdcourse.com/ai/vibe-coding</a></p>
+        </div>
+      </div>
+
+      <div class="resource">
+        <span class="num">05</span>
+        <div>
+          <h4>六角學院 · Vibe Coding 新手營</h4>
+          <p>台灣的付費課程，主題是「用 AI 開發辦公室系統」。喜歡有人帶、有作業、有討論區的選這個。</p>
+          <p class="link">→ <a href="https://www.hexschool.com/2026/02/26/2026-02-26-vibe-coding-ai-office-system/" target="_blank" rel="noopener">hexschool.com</a></p>
+        </div>
+      </div>
+
+      <div class="resource">
+        <span class="num">06</span>
+        <div>
+          <h4>IBM · 什麼是 Vibe Coding</h4>
+          <p>從產業視角看「Vibe Coding 在企業裡是什麼」。讀完心裡比較有譜——不是流行語，是工程實踐的轉變。</p>
+          <p class="link">→ <a href="https://www.ibm.com/think/topics/vibe-coding" target="_blank" rel="noopener">ibm.com/think/topics/vibe-coding</a></p>
+        </div>
+      </div>
+
+      <div class="resource">
+        <span class="num">07</span>
+        <div>
+          <h4>Google + Kaggle · GenAI Intensive Vibe Coding（2026/06）</h4>
+          <p>Google 跟 Kaggle 合辦的免費五日營，2026 年 6 月，主題是用自然語言工作流做出能上線的 AI Agent。</p>
+          <p class="link">→ <a href="https://blog.google/innovation-and-ai/technology/developers-tools/kaggle-genai-intensive-course-vibe-coding-june-2026/" target="_blank" rel="noopener">blog.google 公告</a></p>
+        </div>
+      </div>
+
+      <div class="resource">
+        <span class="num">08</span>
+        <div>
+          <h4>HackMD · Git 教學和 GitHub 設定指引</h4>
+          <p>jserv（系統軟體大師）整理的 Git + GitHub 中文教學，幾乎所有指令範例都在裡面。當作工具書查。</p>
+          <p class="link">→ <a href="https://hackmd.io/@sysprog/git-with-github" target="_blank" rel="noopener">hackmd.io/@sysprog/git-with-github</a></p>
+        </div>
+      </div>
+
+      <div class="resource">
+        <span class="num">09</span>
+        <div>
+          <h4>Google Apps Script 官方 Codelab</h4>
+          <p>「4 行程式碼搞定 Sheets / Maps / Gmail」入門 Codelab。看官方原版反而比中文翻譯更白話。</p>
+          <p class="link">→ <a href="https://codelabs.developers.google.com/codelabs/apps-script-intro" target="_blank" rel="noopener">codelabs · apps-script-intro</a></p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 14 -->
+  <section class="chapter" id="tips">
+    <div class="chapter-head">
+      <span class="chapter-num">CHAPTER 14</span>
+      <h2>給新手的提醒</h2>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-label">最常見的三個翻車</span>
+      <p>① <b>API Key push 進 Public Repo</b>：幾小時內就會被機器人撈走燒光額度。立刻 Revoke、加 <code>.env</code>。<br/>
+      ② <b>OAuth 看到要授權就無腦點</b>：被釣魚網站抄走 GitHub Token 等於整個帳號被接管。先看網域。<br/>
+      ③ <b>免費額度爆量</b>：Vercel / Cloudflare 都有月額度，Render 免費版會冷啟動。<em>看後台用量比看銀行帳單重要。</em></p>
+    </div>
+
+    <ul>
+      <li><strong>分清楚兩種登入</strong>：「登入 IDE 用 AI」 vs 「拿 API Key 給程式用」。前者是你跟 IDE 的事，後者是程式碼跟 AI 服務的事。</li>
+      <li><strong>每註冊一個服務，截圖存雲端</strong>。三個月後你會忘記哪個 email 註冊的、哪個方案、用哪張卡。</li>
+      <li><strong>所有後台都開 2FA</strong>：GitHub、Vercel、Anthropic、OpenAI——<em>尤其是綁卡的</em>。</li>
+      <li><strong>免費版額度要會看</strong>：不是「免費＝無限」。爆量時不是收錢，是直接停服。</li>
+      <li><strong>學一次，用一輩子</strong>：GitHub / OAuth / API Key 這套基礎，不管你之後玩 Antigravity、Cursor、Claude Code，邏輯都一樣。今天裝起來，未來省下無數小時。</li>
+    </ul>
+
+    <div class="callout green">
+      <span class="callout-label">最後一句話</span>
+      <p>這頁讀完你應該有個感覺：所有「登入」其實都在問同一件事——<b>「你要不要讓 A 工具動 B 服務？」</b>。看懂這句，跑 Vibe Coding 就不會再迷路。</p>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <h3>讀完這頁，你不會再卡在登入頁。</h3>
+    <p>這份手冊是給 AI 讀書會學員的「帳號開通包」——把 Antigravity 教材沒講到的「外面那層」補完。</p>
+    <p>看完建議的順序：先去 <a href="https://github.com/signup" target="_blank" rel="noopener">註冊 GitHub</a> → 回頭看 <a href="antigravity-guide.html">Antigravity 教材</a> 跑第一個專案 → 部署上線時再回來查 Part 03。</p>
+    <div class="credits">
+      AI 讀書會 · 帳號與登入指南 · 2026
+    </div>
+  </div>
+</footer>
+
+<button class="top" onclick="window.scrollTo({top:0, behavior:'smooth'})" aria-label="回到頂部">↑</button>
+
+<script>
+  const top = document.querySelector('.top');
+  window.addEventListener('scroll', () => {
+    top.classList.toggle('show', window.scrollY > 600);
+  });
+</script>
+
+</body>
+</html>
